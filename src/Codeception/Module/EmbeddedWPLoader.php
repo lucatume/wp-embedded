@@ -39,6 +39,10 @@ class EmbeddedWPLoader extends WPLoader
         $this->loadConfigFile($wpRootFolder);
 
         $constants = array('ABSPATH' => $wpRootFolder,
+            'DB_NAME' => 'notApplicable',
+            'DB_USER' => 'notApplicable',
+            'DB_PASSWORD' => 'notApplicable',
+            'DB_HOST' => 'notApplicable',
             'DB_FILE' => $this->config['dbFile'],
             'DB_DIR' => $this->config['dbDir'] ? $this->config['dbDir'] : $wpRootFolder,
             'DB_CHARSET' => $this->config['dbCharset'],
