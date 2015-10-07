@@ -7,6 +7,25 @@ use tad\WPBrowser\Utils\PathUtils;
 
 class EmbeddedWPLoader extends WPLoader
 {
+    protected $requiredFields = array();
+
+    protected $config = array('dbDir' => false,
+        'dbFile' => 'wordpress',
+        'wpDebug' => true,
+        'multisite' => false,
+        'dbCharset' => 'utf8',
+        'dbCollate' => '',
+        'tablePrefix' => 'wptests_',
+        'domain' => 'example.org',
+        'adminEmail' => 'admin@example.org',
+        'title' => 'Test Blog',
+        'phpBinary' => 'php',
+        'language' => '',
+        'config_file' => '',
+        'plugins' => '',
+        'activatePlugins' => '',
+        'bootstrapActions' => '');
+
     protected function getWpRootFolder()
     {
         return dirname(dirname(dirname(__FILE__))) . '/embedded-wordpress';
@@ -21,7 +40,7 @@ class EmbeddedWPLoader extends WPLoader
 
         $constants = array('ABSPATH' => $wpRootFolder,
             'DB_FILE' => $this->config['dbFile'],
-            'DB_DIR' => $this->config['dbDir'],
+            'DB_DIR' => $this->config['dbDir'] ? $this->config['dbDir'] : $wpRootFolder,
             'DB_CHARSET' => $this->config['dbCharset'],
             'DB_COLLATE' => $this->config['dbCollate'],
             'WP_TESTS_TABLE_PREFIX' => $this->config['tablePrefix'],
