@@ -1,0 +1,42 @@
+{
+  "name": "lucatume/wp-embedded",
+  "description": "WordPress embedded installation",
+  "minimum-stability": "dev",
+  "license": "GPL-2.0",
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "http://wpackagist.org"
+    }
+  ],
+  "authors": [
+    {
+      "name": "Luca Tumedei",
+      "email": "luca@theaveragedev.com"
+    }
+  ],
+  "require": {
+    "johnpbloch/wordpress": "dev-master",
+    "wpackagist-plugin/sqlite-integration": "*"
+  },
+  "autoload": {
+    "psr-0": {
+      "Codeception\\Module\\": "src/",
+      "tad\\EmbeddedWpLoader\\": "src/"
+    }
+  },
+  "extra": {
+    "wordpress-install-dir": "vendor/embedded-wordpress",
+    "installer-paths": {
+      "vendor/embedded-wordpress": [
+        "johnpbloch/wordpress"
+      ],
+      "vendor/embedded-wordpress/wp-content/plugins/{$name}": [
+        "wpackagist-plugin/sqlite-integration"
+      ]
+    }
+  },
+  "scripts": {
+    "post-update-cmd": "tad\\EmbeddedWpLoader\\Scripts::onPostUpdate"
+  }
+}
