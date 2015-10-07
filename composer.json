@@ -17,7 +17,8 @@
   ],
   "require": {
     "johnpbloch/wordpress": "dev-master",
-    "wpackagist-plugin/sqlite-integration": "*"
+    "wpackagist-plugin/sqlite-integration": "*",
+    "lucatume/wp-browser": "~1.7"
   },
   "autoload": {
     "psr-0": {
