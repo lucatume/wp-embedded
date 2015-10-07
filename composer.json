@@ -16,28 +16,11 @@
     }
   ],
   "require": {
-    "johnpbloch/wordpress": "dev-master",
-    "wpackagist-plugin/sqlite-integration": "*",
     "lucatume/wp-browser": "~1.7"
   },
   "autoload": {
     "psr-0": {
-      "Codeception\\Module\\": "src/",
-      "tad\\EmbeddedWpLoader\\": "src/"
+      "Codeception\\Module\\": "src/"
     }
-  },
-  "extra": {
-    "wordpress-install-dir": "vendor/embedded-wordpress",
-    "installer-paths": {
-      "vendor/embedded-wordpress": [
-        "johnpbloch/wordpress"
-      ],
-      "vendor/embedded-wordpress/wp-content/plugins/{$name}": [
-        "wpackagist-plugin/sqlite-integration"
-      ]
-    }
-  },
-  "scripts": {
-    "post-update-cmd": "tad\\EmbeddedWpLoader\\Scripts::onPostUpdate"
   }
 }
