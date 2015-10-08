@@ -9,6 +9,19 @@ class EmbeddedWPLoader extends WPLoader
 {
     protected $requiredFields = array();
 
+    public function activatePlugins()
+    {
+        if (empty($this->config['activatePlugins'])) {
+            return;
+        }
+        foreach ($this->config['activatePlugins'] as $plugin) {
+            if ($plugin == $this->config['mainFile']) {
+                $plugin = basename(getcwd()) . DIRECTORY_SEPARATOR . $plugin;
+            }
+            do_action("activate_$plugin");
+        }
+    }
+
     protected $config = array('dbDir' => false,
         'dbFile' => 'wordpress',
         'wpDebug' => true,
