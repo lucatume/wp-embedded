@@ -88,7 +88,7 @@ class myPluginTest extends \WP_UnitTestCase
         parent::tearDown();
     }
 
-    public function test_slashit()
+    public function test_trailingslashit()
     {
         $this->assertEquals('foo/', trailingslashit('foo'));
     }
