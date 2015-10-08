@@ -7,7 +7,7 @@ Require the package using [Composer](https://getcomposer.org/ "Composer") in the
 ```json
 {
     "require": {
-        "lucatume/wp-embedded": "~1.0"
+        "lucatume/wp-embedded": "dev-master"
     }
 }
 ```
