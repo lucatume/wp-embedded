@@ -82,8 +82,15 @@ if (!extension_loaded('pdo_sqlite')) {
 /*
  * PDODIR is SQLite Integration installed directory.
  */
-define('PDODIR', ABSPATH . 'wp-content/plugins/sqlite-integration/');
-
+if (defined('WP_PLUGIN_DIR')) {
+	define('PDODIR', WP_PLUGIN_DIR . '/sqlite-integration/');
+} else {
+	if (defined('WP_CONTENT_DIR')) {
+		define('PDODIR', WP_CONTENT_DIR . '/plugins/sqlite-integration/');
+	} else {
+		define('PDODIR', ABSPATH . 'wp-content/plugins/sqlite-integration/');
+	}
+}
 /*
  * FQDBDIR is a directory where the sqlite database file is placed.
  * If DB_DIR is defined, it is used as FQDBDIR.

@@ -3,6 +3,7 @@
 namespace Codeception\Module;
 
 use Codeception\Exception\ModuleConfigException;
+use tad\WPBrowser\Utils\PathUtils;
 
 class EmbeddedWP extends WPLoader
 {
@@ -15,8 +16,9 @@ class EmbeddedWP extends WPLoader
         }
         foreach ($this->config['activatePlugins'] as $plugin) {
             if ($plugin == $this->config['mainFile']) {
-                $plugin = basename(getcwd()) . DIRECTORY_SEPARATOR . $plugin;
+                $plugin = basename(codecept_root_dir()) . DIRECTORY_SEPARATOR . PathUtils::unleadslashit($plugin);
             }
+            // @todo required plugins
             do_action("activate_$plugin");
         }
     }
@@ -33,6 +35,7 @@ class EmbeddedWP extends WPLoader
         'title' => 'Test Blog',
         'phpBinary' => 'php',
         'language' => '',
+        'requiredPlugins' => array(),
         'mainFile' => '',
         'activatePlugins' => '',
         'bootstrapActions' => '');
@@ -44,15 +47,8 @@ class EmbeddedWP extends WPLoader
 
     public function loadPlugins()
     {
-        if (empty($this->config['mainFile'])) {
-            return;
-        }
-        $mainFile = $this->config['mainFile'];
-        $path = getcwd() . DIRECTORY_SEPARATOR . $mainFile;
-        if (!file_exists($path)) {
-            throw new ModuleConfigException(__CLASS__, "The '{$mainFile}' file was not found in the root project directory; this might be due to a wrong configuration of the `mainFile` setting.");
-        }
-        require_once $path;
+        $this->loadRequiredPlugins();
+        $this->loadMainPlugin();
     }
 
     protected function defineGlobals()
@@ -71,7 +67,6 @@ class EmbeddedWP extends WPLoader
             'DB_DIR' => $this->config['dbDir'] ? $this->config['dbDir'] : $wpRootFolder,
             'DB_CHARSET' => $this->config['dbCharset'],
             'DB_COLLATE' => $this->config['dbCollate'],
-            'WP_PLUGIN_DIR' => dirname(getcwd()),
             'WP_TESTS_TABLE_PREFIX' => $this->config['tablePrefix'],
             'WP_TESTS_DOMAIN' => $this->config['domain'],
             'WP_TESTS_EMAIL' => $this->config['adminEmail'],
@@ -89,5 +84,50 @@ class EmbeddedWP extends WPLoader
 
         // spoof plugins config value
         $this->config['plugins'] = [$this->config['mainFile']];
+    }
+
+    private function loadMainPlugin()
+    {
+        $mainFile = $this->config['mainFile'];
+        $path = $this->mainPluginBasename($mainFile);
+        if (!file_exists($path)) {
+            throw new ModuleConfigException(__CLASS__, "The '{$mainFile}' file was not found in the root project directory; this might be due to a wrong configuration of the `mainFile` setting.");
+        }
+        $this->linkPluginPath($path);
+        require_once $path;
+    }
+
+    /**
+     * @param $path
+     */
+    private function linkPluginPath($path)
+    {
+        $linkedPath = WP_PLUGIN_DIR . DIRECTORY_SEPARATOR . $path;
+        if (!file_exists($linkedPath)) {
+            link($path, $linkedPath);
+        }
+    }
+
+    /**
+     * @param $mainFile
+     * @return string
+     */
+    private function mainPluginBasename($mainFile)
+    {
+        $path = basename(codecept_root_dir()) . DIRECTORY_SEPARATOR . PathUtils::unleadslashit($mainFile);
+        return $path;
+    }
+
+    private function loadRequiredPlugins()
+    {
+        $requiredPlugins = $this->config['requiredPlugins'];
+        foreach ($requiredPlugins as $requiredPlugin) {
+            $path = codecept_root_dir(PathUtils::unleadslashit($requiredPlugin));
+            if (!file_exists($path)) {
+                throw new ModuleConfigException(__CLASS__, "The '{$requiredPlugin}' file was not found in relation to tthe root project directory; this might be due to a wrong configuration of the `mainFile` setting.");
+            }
+            $this->linkPluginPath($path);
+            require_once $path;
+        }
     }
 }
