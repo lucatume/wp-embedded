@@ -32,7 +32,7 @@ class EmbeddedWPLoader extends WPLoader
 
     public function loadPlugins()
     {
-        if (empty($this->config['mainFile']) || !defined('WP_PLUGIN_DIR')) {
+        if (empty($this->config['mainFile'])) {
             return;
         }
         $mainFile = $this->config['mainFile'];
@@ -59,7 +59,6 @@ class EmbeddedWPLoader extends WPLoader
             'DB_DIR' => $this->config['dbDir'] ? $this->config['dbDir'] : $wpRootFolder,
             'DB_CHARSET' => $this->config['dbCharset'],
             'DB_COLLATE' => $this->config['dbCollate'],
-            'WP_PLUGIN_DIR' => $this->getRootFolder(),
             'WP_TESTS_TABLE_PREFIX' => $this->config['tablePrefix'],
             'WP_TESTS_DOMAIN' => $this->config['domain'],
             'WP_TESTS_EMAIL' => $this->config['adminEmail'],
@@ -77,23 +76,5 @@ class EmbeddedWPLoader extends WPLoader
 
         // spoof plugins config value
         $this->config['plugins'] = [$this->config['mainFile']];
-    }
-
-    private function pluginsDir($file = null)
-    {
-        $rootFolder = $this->getRootFolder();
-        if (!empty($file)) {
-            return $rootFolder . DIRECTORY_SEPARATOR . PathUtils::unleadslashit(PathUtils::untrailslashit($file));
-        } else {
-            return $rootFolder;
-        }
-    }
-
-    /**
-     * @return string
-     */
-    private function getRootFolder()
-    {
-        return dirname(getcwd());
     }
 }
