@@ -56,9 +56,49 @@ modules:
         - EmbeddedWp
 ```
 
-and run tests
+scaffold some WordPress functional tests
 
+```bash
+wpcept generate:wpunit functional myPlugin
 ```
+
+modify the test code 
+
+```php
+<?php
+
+class myPluginTest extends \WP_UnitTestCase
+{
+
+    protected $backupGlobals = false;
+
+    public function setUp()
+    {
+        // before
+        parent::setUp();
+
+        // your set up methods here
+    }
+
+    public function tearDown()
+    {
+        // your tear down methods here
+
+        // then
+        parent::tearDown();
+    }
+
+    public function test_slashit()
+    {
+        $this->assertEquals('foo/', trailingslashit('foo'));
+    }
+
+}
+```
+
+and run test
+
+```bash
 codecept run
 ```
 
