@@ -1,4 +1,0 @@
-A list of features to explore/implement:
-- symlink the main plugin file into embedded plugins
-- required plugins support
-- allow for themes to load
