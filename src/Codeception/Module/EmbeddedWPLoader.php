@@ -59,6 +59,7 @@ class EmbeddedWPLoader extends WPLoader
             'DB_DIR' => $this->config['dbDir'] ? $this->config['dbDir'] : $wpRootFolder,
             'DB_CHARSET' => $this->config['dbCharset'],
             'DB_COLLATE' => $this->config['dbCollate'],
+            'WP_PLUGIN_DIR' => dirname(getcwd()),
             'WP_TESTS_TABLE_PREFIX' => $this->config['tablePrefix'],
             'WP_TESTS_DOMAIN' => $this->config['domain'],
             'WP_TESTS_EMAIL' => $this->config['adminEmail'],
