@@ -6,7 +6,7 @@ use Codeception\Exception\ModuleConfigException;
 
 class EmbeddedWP extends WPLoader
 {
-    protected $requiredFields = array();
+    protected $requiredFields = array('mainFile');
 
     public function activatePlugins()
     {
@@ -34,7 +34,7 @@ class EmbeddedWP extends WPLoader
         'phpBinary' => 'php',
         'language' => '',
         'mainFile' => '',
-        'activatePlugin' => false,
+        'activatePlugins' => '',
         'bootstrapActions' => '');
 
     protected function getWpRootFolder()
