@@ -3,9 +3,8 @@
 namespace Codeception\Module;
 
 use Codeception\Exception\ModuleConfigException;
-use tad\WPBrowser\Utils\PathUtils;
 
-class EmbeddedWPLoader extends WPLoader
+class EmbeddedWP extends WPLoader
 {
     protected $requiredFields = array();
 
@@ -51,7 +50,7 @@ class EmbeddedWPLoader extends WPLoader
         $mainFile = $this->config['mainFile'];
         $path = getcwd() . DIRECTORY_SEPARATOR . $mainFile;
         if (!file_exists($path)) {
-            throw new ModuleConfigException("The '{$mainFile}' file was not found in the root project directory; this might be due to a wrong configuration of the `mainFile` setting.");
+            throw new ModuleConfigException(__CLASS__, "The '{$mainFile}' file was not found in the root project directory; this might be due to a wrong configuration of the `mainFile` setting.");
         }
         require_once $path;
     }
