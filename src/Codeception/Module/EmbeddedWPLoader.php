@@ -2,7 +2,7 @@
 
 namespace Codeception\Module;
 
-
+use Codeception\Exception\ModuleConfigException;
 use tad\WPBrowser\Utils\PathUtils;
 
 class EmbeddedWPLoader extends WPLoader
@@ -21,14 +21,26 @@ class EmbeddedWPLoader extends WPLoader
         'title' => 'Test Blog',
         'phpBinary' => 'php',
         'language' => '',
-        'config_file' => '',
-        'plugins' => '',
-        'activatePlugins' => '',
+        'mainFile' => '',
+        'activatePlugin' => false,
         'bootstrapActions' => '');
 
     protected function getWpRootFolder()
     {
-        return dirname(dirname(dirname(__FILE__))) . '/embedded-wordpress';
+        return dirname(dirname(dirname(__FILE__))) . '/embedded-wordpress/';
+    }
+
+    public function loadPlugins()
+    {
+        if (empty($this->config['mainFile']) || !defined('WP_PLUGIN_DIR')) {
+            return;
+        }
+        $mainFile = $this->config['mainFile'];
+        $path = getcwd() . DIRECTORY_SEPARATOR . $mainFile;
+        if (!file_exists($path)) {
+            throw new ModuleConfigException("The '{$mainFile}' file was not found in the root project directory; this might be due to a wrong configuration of the `mainFile` setting.");
+        }
+        require_once $path;
     }
 
     protected function defineGlobals()
@@ -39,14 +51,15 @@ class EmbeddedWPLoader extends WPLoader
         $this->loadConfigFile($wpRootFolder);
 
         $constants = array('ABSPATH' => $wpRootFolder,
-            'DB_NAME' => 'notApplicable',
-            'DB_USER' => 'notApplicable',
-            'DB_PASSWORD' => 'notApplicable',
-            'DB_HOST' => 'notApplicable',
+            'DB_NAME' => 'spoof',
+            'DB_USER' => 'spoof',
+            'DB_PASSWORD' => 'spoof',
+            'DB_HOST' => 'spoof',
             'DB_FILE' => $this->config['dbFile'],
             'DB_DIR' => $this->config['dbDir'] ? $this->config['dbDir'] : $wpRootFolder,
             'DB_CHARSET' => $this->config['dbCharset'],
             'DB_COLLATE' => $this->config['dbCollate'],
+            'WP_PLUGIN_DIR' => $this->getRootFolder(),
             'WP_TESTS_TABLE_PREFIX' => $this->config['tablePrefix'],
             'WP_TESTS_DOMAIN' => $this->config['domain'],
             'WP_TESTS_EMAIL' => $this->config['adminEmail'],
@@ -61,6 +74,26 @@ class EmbeddedWPLoader extends WPLoader
                 define($key, $value);
             }
         }
+
+        // spoof plugins config value
+        $this->config['plugins'] = [$this->config['mainFile']];
     }
 
+    private function pluginsDir($file = null)
+    {
+        $rootFolder = $this->getRootFolder();
+        if (!empty($file)) {
+            return $rootFolder . DIRECTORY_SEPARATOR . PathUtils::unleadslashit(PathUtils::untrailslashit($file));
+        } else {
+            return $rootFolder;
+        }
+    }
+
+    /**
+     * @return string
+     */
+    private function getRootFolder()
+    {
+        return dirname(getcwd());
+    }
 }
