@@ -147,16 +147,16 @@ class EmbeddedWP extends WPLoader
         if (empty($this->config['activatePlugins'])) {
             return;
         }
-        $plugins = [];
+        $activePlugins = [];
         $activatePlugins = is_array($this->config['activatePlugins']) ? $this->config['activatePlugins'] : [$this->config['activatePlugins']];
         foreach ($activatePlugins as $plugin) {
             $pluginBasename = $plugin === $this->config['mainFile'] ? $this->getMainPluginBasename() : $plugin;
-            $plugins[] = $pluginBasename;
+            $activePlugins[] = $pluginBasename;
         }
         if (!empty($GLOBALS['wp_tests_options']['active_plugins'])) {
-            $GLOBALS['wp_tests_options']['active_plugins'] = array_merge($GLOBALS['wp_tests_options']['active_plugins'], $plugins);
+            $GLOBALS['wp_tests_options']['active_plugins'] = array_merge($GLOBALS['wp_tests_options']['active_plugins'], $activePlugins);
         } else {
-            $GLOBALS['wp_tests_options']['active_plugins'] = $plugins;
+            $GLOBALS['wp_tests_options']['active_plugins'] = $activePlugins;
         }
     }
 
