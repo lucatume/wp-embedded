@@ -109,6 +109,7 @@ class EmbeddedWP extends WPLoader
         if (!file_exists($realPath)) {
             throw new ModuleConfigException(__CLASS__, "The '{$mainFile}' file was not found in the '{$realPath}' path; this might be due to a wrong configuration of the `mainFile` setting.");
         }
+        /** @noinspection PhpIncludeInspection */
         require_once $realPath;
         $pluginFolder = basename(codecept_root_dir());
         $this->symlinkPlugin(codecept_root_dir(), $pluginFolder);
@@ -132,10 +133,34 @@ class EmbeddedWP extends WPLoader
             if (!file_exists($path)) {
                 throw new ModuleConfigException(__CLASS__, "The required plugin file '{$path}' does not exist; required plugins paths should be relative to the project root folder or absolute paths");
             }
+            /** @noinspection PhpIncludeInspection */
             require_once $path;
             // `/Users/Me/Plugins/my-plugin/my-plugin.php` to `my-plugin`
             $pluginFolder = basename(dirname($path));
             $this->symlinkPlugin(dirname($path), $pluginFolder);
         }
+    }
+
+    protected function setActivePlugins()
+    {
+        if (empty($this->config['activatePlugins'])) {
+            return;
+        }
+        $plugins = [];
+        $activatePlugins = is_array($this->config['activatePlugins']) ? $this->config['activatePlugins'] : [$this->config['activatePlugins']];
+        foreach ($activatePlugins as $plugin) {
+            $pluginBasename = $plugin === $this->config['mainFile'] ? $this->getMainPluginBasename() : $plugin;
+            $plugins[] = $pluginBasename;
+        }
+        if (!empty($GLOBALS['wp_tests_options']['active_plugins'])) {
+            $GLOBALS['wp_tests_options']['active_plugins'] = array_merge($GLOBALS['wp_tests_options']['active_plugins'], $plugins);
+        } else {
+            $GLOBALS['wp_tests_options']['active_plugins'] = $plugins;
+        }
+    }
+
+    protected function getMainPluginBasename()
+    {
+        return basename(codecept_root_dir()) . DIRECTORY_SEPARATOR . PathUtils::unleadslashit($this->config['mainFile']);
     }
 }
