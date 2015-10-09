@@ -3,6 +3,9 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased][unreleased]
+### Changed
+- `WP_PLUGIN_DIR` constant points to embedded WordPress installation `plugins` folder
+- project root folder is symlinked into embedded WordPress installation `plugins` folder
 
 ## [0.0.1] - 2015-10-08
 ### Added
