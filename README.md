@@ -126,7 +126,8 @@ Lacking a real database connection the configuration of the module lacks many of
 * `phpBinary` - string, optional, def. `php`; the path or alias of the PHP system executable used in tests
 * `language` - string, optional, def. ` `; the WordPress installation language
 * `config_file` - string|array, optional, def. ` `; the name of extra configuration files the suite should load before the tests, the suite will look for those in the root of the project
-* `activatePlugins` - string|array, optional, def. `my-plugin.php`; a list of plugin files that should be activated, using the `activate_{$plugin}` action, before the tests run
+* `requiredPlugins` - string|array, optional, def. ` `; a path or a list of paths each pointing to a required plugin main file; paths can be absolute paths or relative to the project root folder
+* `activatePlugins` - string|array, optional, def. `my-plugin.php`; a list of plugin files that should be activated, using the `activate_{$plugin}` action, before the tests run; the plugins slugs should have the `plugin_folder/plugin_file.php` format
 * `booststrapActions` - string|array, optional, def. ` `; a list of actions that will be called after the plugin files have been required and the activation hooks ran
 
 A typical configuration to test a plugin with a main file called `my-plugin.php` would look like this:
@@ -135,7 +136,14 @@ A typical configuration to test a plugin with a main file called `my-plugin.php`
 modules:
     config:
         EmbeddedWp:
+            requiredPlugins:
+                - /Users/Me/clonedPlugins/posts-to-posts/posts-to-posts.php
+                - /Another/location/required-plugin/required-plugin.php
+                - /path/relative/to/project/root/another-required-plugin/another-required-plugin.php
             mainFile: my-plugin.php
             activatePlugins:
-              - my-plugin.php
+                - posts-to-posts/posts-to-posts.php
+                - required-plugin/required-plugin.php
+                - another-required-plugin/another-required-plugin.php
+                - my-plugin.php
 ```
