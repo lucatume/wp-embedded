@@ -144,14 +144,13 @@ class EmbeddedWP extends WPLoader
 
     protected function setActivePlugins()
     {
-        if (empty($this->config['activatePlugins'])) {
-            return;
-        }
-        $activePlugins = [];
-        $activatePlugins = is_array($this->config['activatePlugins']) ? $this->config['activatePlugins'] : [$this->config['activatePlugins']];
-        foreach ($activatePlugins as $plugin) {
-            $pluginBasename = $plugin === $this->config['mainFile'] ? $this->getMainPluginBasename() : $plugin;
-            $activePlugins[] = $pluginBasename;
+        $activePlugins = [$this->getMainPluginBasename()];
+        if (!empty($this->config['requiredPlugins'])) {
+            $requiredPlugins = is_array($this->config['requiredPlugins']) ? $this->config['requiredPlugins'] : [$this->config['requiredPlugins']];
+            foreach ($requiredPlugins as $plugin) {
+                $pluginBasename = basename(dirname($plugin)) . DIRECTORY_SEPARATOR . basename($plugin);
+                $activePlugins[] = $pluginBasename;
+            }
         }
         if (!empty($GLOBALS['wp_tests_options']['active_plugins'])) {
             $GLOBALS['wp_tests_options']['active_plugins'] = array_merge($GLOBALS['wp_tests_options']['active_plugins'], $activePlugins);
