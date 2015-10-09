@@ -14,9 +14,14 @@ class EmbeddedWP extends WPLoader
         if (empty($this->config['activatePlugins'])) {
             return;
         }
+        $sep = DIRECTORY_SEPARATOR;
+        $pattern = "~^[A-Za-z_-][A-Za-z0-9_-]*{$sep}[A-Za-z0-9_-]*\\.php$~u";
         foreach ($this->config['activatePlugins'] as $plugin) {
+            if ($plugin === PathUtils::unleadslashit($this->config['mainFile'])) {
+                $plugin = basename(codecept_root_dir()) . DIRECTORY_SEPARATOR . $plugin;
+            }
             $plugin = PathUtils::unleadslashit($plugin);
-            if (!preg_match("/^[A-Za-z_-][A-Za-z0-9_-]*/[A-Za-z0-9_-]*\\.php$/u", $plugin)) {
+            if (!preg_match($pattern, $plugin)) {
                 throw new ModuleConfigException(__CLASS__, "Format for `activatePlugins` entries should be 'pluginFolder/pluginFile.php' ([a-zA-Z0-9-_] pattern allowed), {$plugin} is not valid.");
             }
             do_action("activate_$plugin");
@@ -47,27 +52,7 @@ class EmbeddedWP extends WPLoader
 
     public function loadPlugins()
     {
-        if (empty($this->config['requiredPlugins'])) {
-            return;
-        }
-        $requiredPlugins = $this->config['requiredPlugins'];
-        foreach ($requiredPlugins as $requiredPlugin) {
-            if (!file_exists($requiredPlugin)) {
-                // relative path to required plugin
-                $path = realpath(codecept_root_dir(DIRECTORY_SEPARATOR . PathUtils::unleadslashit($requiredPlugin)));
-            } else {
-                // absolute path to required plugin
-                $path = $requiredPlugin;
-            }
-            // require the plugin files
-            if (!file_exists($path)) {
-                throw new ModuleConfigException(__CLASS__, "The required plugin file '{$path}' does not exist; required plugins paths should be relative to the project root folder or absolute paths");
-            }
-            require_once $path;
-            // `/Users/Me/Plugins/my-plugin/my-plugin.php` to `my-plugin`
-            $pluginFolder = basename(dirname($path));
-            $this->symlinkPlugin(dirname($path), $pluginFolder);
-        }
+        $this->loadRequiredPlugins();
         $this->loadMainPlugin();
     }
 
@@ -127,5 +112,30 @@ class EmbeddedWP extends WPLoader
         require_once $realPath;
         $pluginFolder = basename(codecept_root_dir());
         $this->symlinkPlugin(codecept_root_dir(), $pluginFolder);
+    }
+
+    private function loadRequiredPlugins()
+    {
+        if (empty($this->config['requiredPlugins'])) {
+            return;
+        }
+        $requiredPlugins = $this->config['requiredPlugins'];
+        foreach ($requiredPlugins as $requiredPlugin) {
+            if (!file_exists($requiredPlugin)) {
+                // relative path to required plugin
+                $path = realpath(codecept_root_dir(DIRECTORY_SEPARATOR . PathUtils::unleadslashit($requiredPlugin)));
+            } else {
+                // absolute path to required plugin
+                $path = $requiredPlugin;
+            }
+            // require the plugin files
+            if (!file_exists($path)) {
+                throw new ModuleConfigException(__CLASS__, "The required plugin file '{$path}' does not exist; required plugins paths should be relative to the project root folder or absolute paths");
+            }
+            require_once $path;
+            // `/Users/Me/Plugins/my-plugin/my-plugin.php` to `my-plugin`
+            $pluginFolder = basename(dirname($path));
+            $this->symlinkPlugin(dirname($path), $pluginFolder);
+        }
     }
 }
