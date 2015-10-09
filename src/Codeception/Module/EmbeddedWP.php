@@ -3,6 +3,7 @@
 namespace Codeception\Module;
 
 use Codeception\Exception\ModuleConfigException;
+use tad\WPBrowser\Utils\PathUtils;
 
 class EmbeddedWP extends WPLoader
 {
@@ -14,8 +15,9 @@ class EmbeddedWP extends WPLoader
             return;
         }
         foreach ($this->config['activatePlugins'] as $plugin) {
-            if ($plugin == $this->config['mainFile']) {
-                $plugin = basename(getcwd()) . DIRECTORY_SEPARATOR . $plugin;
+            $plugin = PathUtils::unleadslashit($plugin);
+            if (!preg_match("/^[A-Za-z_-][A-Za-z0-9_-]*/[A-Za-z0-9_-]*\\.php$/u", $plugin)) {
+                throw new ModuleConfigException(__CLASS__, "Format for `activatePlugins` entries should be 'pluginFolder/pluginFile.php' ([a-zA-Z0-9-_] pattern allowed), {$plugin} is not valid.");
             }
             do_action("activate_$plugin");
         }
@@ -34,6 +36,7 @@ class EmbeddedWP extends WPLoader
         'phpBinary' => 'php',
         'language' => '',
         'mainFile' => '',
+        'requiredPlugins' => [],
         'activatePlugins' => '',
         'bootstrapActions' => '');
 
@@ -44,19 +47,28 @@ class EmbeddedWP extends WPLoader
 
     public function loadPlugins()
     {
-        if (empty($this->config['mainFile'])) {
+        if (empty($this->config['requiredPlugins'])) {
             return;
         }
-        $mainFile = $this->config['mainFile'];
-        $realPath = getcwd() . DIRECTORY_SEPARATOR . $mainFile;
-        if (!file_exists($realPath)) {
-            throw new ModuleConfigException(__CLASS__, "The '{$mainFile}' file was not found in the root project directory; this might be due to a wrong configuration of the `mainFile` setting.");
+        $requiredPlugins = $this->config['requiredPlugins'];
+        foreach ($requiredPlugins as $requiredPlugin) {
+            if (!file_exists($requiredPlugin)) {
+                // relative path to required plugin
+                $path = realpath(codecept_root_dir(DIRECTORY_SEPARATOR . PathUtils::unleadslashit($requiredPlugin)));
+            } else {
+                // absolute path to required plugin
+                $path = $requiredPlugin;
+            }
+            // require the plugin files
+            if (!file_exists($path)) {
+                throw new ModuleConfigException(__CLASS__, "The required plugin file '{$path}' does not exist; required plugins paths should be relative to the project root folder or absolute paths");
+            }
+            require_once $path;
+            // `/Users/Me/Plugins/my-plugin/my-plugin.php` to `my-plugin`
+            $pluginFolder = basename(dirname($path));
+            $this->symlinkPlugin(dirname($path), $pluginFolder);
         }
-        require_once $realPath;
-        $linkDestination = $this->getWpRootFolder() . '/wp-content/plugins/' . basename(getcwd());
-        if (!file_exists($linkDestination)) {
-            symlink(getcwd(), $linkDestination);
-        }
+        $this->loadMainPlugin();
     }
 
     protected function defineGlobals()
@@ -92,5 +104,28 @@ class EmbeddedWP extends WPLoader
 
         // spoof plugins config value
         $this->config['plugins'] = [$this->config['mainFile']];
+    }
+
+    private function symlinkPlugin($from, $pluginFolder)
+    {
+        $linkDestination = $this->getWpRootFolder() . '/wp-content/plugins/' . $pluginFolder;
+        if (!file_exists($linkDestination)) {
+            symlink($from, $linkDestination);
+        }
+    }
+
+    private function loadMainPlugin()
+    {
+        if (empty($this->config['mainFile'])) {
+            return;
+        }
+        $mainFile = PathUtils::unleadslashit($this->config['mainFile']);
+        $realPath = realpath(codecept_root_dir(DIRECTORY_SEPARATOR . $mainFile));
+        if (!file_exists($realPath)) {
+            throw new ModuleConfigException(__CLASS__, "The '{$mainFile}' file was not found in the '{$realPath}' path; this might be due to a wrong configuration of the `mainFile` setting.");
+        }
+        require_once $realPath;
+        $pluginFolder = basename(codecept_root_dir());
+        $this->symlinkPlugin(codecept_root_dir(), $pluginFolder);
     }
 }
