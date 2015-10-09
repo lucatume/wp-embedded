@@ -40,6 +40,7 @@ class EmbeddedWP extends WPLoader
         'title' => 'Test Blog',
         'phpBinary' => 'php',
         'language' => '',
+        'config_file' => '',
         'mainFile' => '',
         'requiredPlugins' => [],
         'activatePlugins' => '',
