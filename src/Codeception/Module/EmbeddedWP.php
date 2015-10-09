@@ -48,11 +48,15 @@ class EmbeddedWP extends WPLoader
             return;
         }
         $mainFile = $this->config['mainFile'];
-        $path = getcwd() . DIRECTORY_SEPARATOR . $mainFile;
-        if (!file_exists($path)) {
+        $realPath = getcwd() . DIRECTORY_SEPARATOR . $mainFile;
+        if (!file_exists($realPath)) {
             throw new ModuleConfigException(__CLASS__, "The '{$mainFile}' file was not found in the root project directory; this might be due to a wrong configuration of the `mainFile` setting.");
         }
-        require_once $path;
+        require_once $realPath;
+        $linkDestination = $this->getWpRootFolder() . '/wp-content/plugins/' . basename(getcwd());
+        if (!file_exists($linkDestination)) {
+            symlink(getcwd(), $linkDestination);
+        }
     }
 
     protected function defineGlobals()
@@ -71,7 +75,6 @@ class EmbeddedWP extends WPLoader
             'DB_DIR' => $this->config['dbDir'] ? $this->config['dbDir'] : $wpRootFolder,
             'DB_CHARSET' => $this->config['dbCharset'],
             'DB_COLLATE' => $this->config['dbCollate'],
-            'WP_PLUGIN_DIR' => dirname(getcwd()),
             'WP_TESTS_TABLE_PREFIX' => $this->config['tablePrefix'],
             'WP_TESTS_DOMAIN' => $this->config['domain'],
             'WP_TESTS_EMAIL' => $this->config['adminEmail'],
