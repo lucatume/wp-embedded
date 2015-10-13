@@ -3,6 +3,9 @@
 namespace Codeception\Module;
 
 use Codeception\Exception\ModuleConfigException;
+use Codeception\Lib\ModuleContainer;
+use tad\EmbeddedWP\PathFinder;
+use tad\EmbeddedWP\Paths;
 use tad\WPBrowser\Utils\PathUtils;
 
 class EmbeddedWP extends WPLoader
@@ -25,6 +28,14 @@ class EmbeddedWP extends WPLoader
         'requiredPlugins' => [],
         'activatePlugins' => '',
         'bootstrapActions' => '');
+    /**
+     * @var PathFinder
+     */
+    private $pathFinder;
+    /**
+     * @var \Symfony\Component\Filesystem\Filesystem
+     */
+    private $filesystem;
 
     /**
      * Calls the `activate_{$plugin}` hook for each plugin that requires activation.
@@ -38,15 +49,16 @@ class EmbeddedWP extends WPLoader
         if (empty($this->config['activatePlugins'])) {
             return;
         }
+        $activatePlugins = (array)$this->config['activatePlugins'];
         $sep = DIRECTORY_SEPARATOR;
-        $pattern = "~^[A-Za-z_-][A-Za-z0-9_-]*{$sep}[A-Za-z0-9_-]*\\.php$~u";
-        foreach ($this->config['activatePlugins'] as $plugin) {
+        $pattern = "~^[A-Za-z0-9-_]{1}[/a-zA-Z0-9-_]*\\.php$~u";
+        foreach ($activatePlugins as $plugin) {
             if ($plugin === PathUtils::unleadslashit($this->config['mainFile'])) {
-                $plugin = basename(codecept_root_dir()) . DIRECTORY_SEPARATOR . $plugin;
+                $plugin = basename($this->pathFinder->getRootDir()) . DIRECTORY_SEPARATOR . $plugin;
             }
             $plugin = PathUtils::unleadslashit($plugin);
             if (!preg_match($pattern, $plugin)) {
-                throw new ModuleConfigException(__CLASS__, "Format for `activatePlugins` entries should be 'pluginFolder/pluginFile.php' ([a-zA-Z0-9-_] pattern allowed), {$plugin} is not valid.");
+                throw new ModuleConfigException(__CLASS__, "Format for `activatePlugins` entries should be 'pluginFolder/pluginFile.php' or 'single-file.php' ([a-zA-Z0-9-_] pattern allowed), {$plugin} is not valid.");
             }
             do_action("activate_$plugin");
         }
@@ -72,16 +84,17 @@ class EmbeddedWP extends WPLoader
      *
      * @return void
      */
-    private function loadRequiredPlugins()
+    public function loadRequiredPlugins()
     {
         if (empty($this->config['requiredPlugins'])) {
             return;
         }
-        $requiredPlugins = $this->config['requiredPlugins'];
+
+        $requiredPlugins = (array)$this->config['requiredPlugins'];
         foreach ($requiredPlugins as $requiredPlugin) {
             if (!file_exists($requiredPlugin)) {
                 // relative path to required plugin
-                $path = realpath(codecept_root_dir(DIRECTORY_SEPARATOR . PathUtils::unleadslashit($requiredPlugin)));
+                $path = $this->pathFinder->getRootDir() . DIRECTORY_SEPARATOR . PathUtils::unleadslashit($requiredPlugin);
             } else {
                 // absolute path to required plugin
                 $path = $requiredPlugin;
@@ -108,20 +121,10 @@ class EmbeddedWP extends WPLoader
      */
     private function symlinkPlugin($from, $pluginFolder)
     {
-        $linkDestination = $this->getWpRootFolder() . '/wp-content/plugins/' . $pluginFolder;
-        if (!file_exists($linkDestination)) {
-            symlink($from, $linkDestination);
+        $linkDestination = $this->pathFinder->getWPMuPluginsFolder() . "/{$pluginFolder}";
+        if (!$this->filesystem->exists($linkDestination)) {
+            $this->filesystem->symlink($from, $linkDestination);
         }
-    }
-
-    /**
-     * Returns the path to the embedded WP installation root folder.
-     *
-     * @return string
-     */
-    protected function getWpRootFolder()
-    {
-        return dirname(dirname(dirname(__FILE__))) . '/embedded-wordpress/';
     }
 
     /**
@@ -146,6 +149,7 @@ class EmbeddedWP extends WPLoader
         $pluginFolder = basename(codecept_root_dir());
         $this->symlinkPlugin(codecept_root_dir(), $pluginFolder);
     }
+
 
     /**
      * Defines the global constants that will be used by the embedded WP installation.
@@ -189,6 +193,11 @@ class EmbeddedWP extends WPLoader
         $this->config['plugins'] = [$this->config['mainFile']];
     }
 
+    protected function getWpRootFolder()
+    {
+        return $this->pathFinder->getWpRootFolder();
+    }
+
     /**
      * Sets the value of the `active_plugins` option.
      *
@@ -219,5 +228,12 @@ class EmbeddedWP extends WPLoader
     protected function getMainPluginBasename()
     {
         return basename(codecept_root_dir()) . DIRECTORY_SEPARATOR . PathUtils::unleadslashit($this->config['mainFile']);
+    }
+
+    public function __construct(ModuleContainer $moduleContainer, $config = null, PathFinder $pathFinder = null, \Symfony\Component\Filesystem\Filesystem $filesystem = null)
+    {
+        parent::__construct($moduleContainer, $config);
+        $this->pathFinder = $pathFinder ?: new Paths(codecept_root_dir());
+        $this->filesystem = $filesystem ?: new \Symfony\Component\Filesystem\Filesystem();
     }
 }

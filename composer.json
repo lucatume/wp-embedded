@@ -16,11 +16,16 @@
     }
   ],
   "require": {
-    "lucatume/wp-browser": "~1.7"
+    "lucatume/wp-browser": "dev-master"
   },
   "autoload": {
     "psr-0": {
-      "Codeception\\Module\\": "src/"
+      "Codeception\\Module\\": "src/",
+      "tad\\EmbeddedWP\\": "src/"
     }
+  },
+  "require-dev": {
+    "lucatume/function-mocker": "dev-master",
+    "mikey179/vfsstream": "^1.6@dev"
   }
 }
