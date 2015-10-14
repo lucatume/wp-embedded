@@ -170,12 +170,12 @@ class EmbeddedWPTest extends \Codeception\TestCase\Test
      */
     public function it_should_allow_for_required_plugins_to_be_specified_as_abspath()
     {
-        $projectRoot = VfsStream::url('folder_tree');
+        $rootFolder = VfsStream::url('folder_tree');
         $pluginABasename = 'plugin-a/plugin-a.php';
-        $clonedPluginPath = VfsStream::url('folder_tree') . '/Users/Me/cloned-plugins/' . $pluginABasename;
+        $clonedPluginPath = $rootFolder . '/Users/Me/cloned-plugins/' . $pluginABasename;
         $config = ['requiredPlugins' => $clonedPluginPath];
-        $embeddedWpPath = $projectRoot . '/vendor/lucatume/wp-embedded/src/embedded-wordpress';
-        $pathFinder = new Paths($projectRoot, $embeddedWpPath);
+        $embeddedWpPath = $rootFolder . '/my-plugin/vendor/lucatume/wp-embedded/src/embedded-wordpress';
+        $pathFinder = new Paths($rootFolder, $embeddedWpPath);
         $filesystem = Test::replace('Symfony\Component\Filesystem\Filesystem')->method('symlink')->get();
         $sut = new EmbeddedWP(make_container(), $config, $pathFinder, $filesystem);
 
@@ -246,7 +246,8 @@ class EmbeddedWPTest extends \Codeception\TestCase\Test
                     'wp-embedded' => [
                         'src' => [
                             'embedded-wordpress' => [
-
+                                // EmbeddedWp will look up this file to make sure this is a valid WP install
+                                'wp-settings.php' => '<?php // wp-settings.php'
                             ]
                         ]
                     ]
