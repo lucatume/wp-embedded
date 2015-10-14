@@ -207,6 +207,24 @@ class EmbeddedWPTest extends \Codeception\TestCase\Test
         $sut->loadRequiredPlugins();
     }
 
+    /**
+     * @test
+     * it should throw if relative path required plugin is not pointing to file
+     */
+    public function it_should_throw_if_relative_path_required_plugin_is_not_pointing_to_file()
+    {
+        $projectRoot = VfsStream::url('folder_tree') . '/my-plugin';
+        $embeddedWpPath = $projectRoot . '/vendor/lucatume/wp-embedded/src/embedded-wordpress';
+        $pathFinder = new Paths($projectRoot, $embeddedWpPath);
+        $filesystem = Test::replace('Symfony\Component\Filesystem\Filesystem')->method('symlink')->get();
+        $pluginRelativePath = 'vendor/required-plugins/plugin-b';
+        $sut = new EmbeddedWP(make_container(), ['requiredPlugins' => $pluginRelativePath], $pathFinder, $filesystem);
+
+        $this->expectConfigException();
+
+        $sut->loadRequiredPlugins();
+    }
+
     protected function _before()
     {
         Test::setUp();
