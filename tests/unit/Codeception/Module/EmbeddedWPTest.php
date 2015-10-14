@@ -151,7 +151,7 @@ class EmbeddedWPTest extends \Codeception\TestCase\Test
     public function it_should_allow_for_required_plugin_path_to_be_relative_to_project_root()
     {
         $projectRoot = VfsStream::url('folder_tree') . '/my-plugin';
-        $embeddedWpPath = $projectRoot . '/vendor/lucatume/wp-embedded/src/embedded-wordpress';
+        $embeddedWpPath = $projectRoot . '/my-plugin/vendor/lucatume/wp-embedded/src/embedded-wordpress';
         $pathFinder = new Paths($projectRoot, $embeddedWpPath);
         $filesystem = Test::replace('Symfony\Component\Filesystem\Filesystem')->method('symlink')->get();
         $pluginRelativePath = 'vendor/required-plugins/plugin-b/plugin-b.php';
@@ -197,7 +197,7 @@ class EmbeddedWPTest extends \Codeception\TestCase\Test
     {
         $projectRoot = VfsStream::url('folder_tree');
         $clonedPluginPath = VfsStream::url('folder_tree') . '/Users/Me/cloned-plugins/plugin-a';
-        $embeddedWpPath = $projectRoot . '/vendor/lucatume/wp-embedded/src/embedded-wordpress';
+        $embeddedWpPath = $projectRoot . '/my-plugin/vendor/lucatume/wp-embedded/src/embedded-wordpress';
         $config = ['requiredPlugins' => $clonedPluginPath];
         $pathFinder = (new Paths())->setWPRootFolder($embeddedWpPath);
         $sut = new EmbeddedWP(make_container(), $config, $pathFinder);
@@ -214,7 +214,7 @@ class EmbeddedWPTest extends \Codeception\TestCase\Test
     public function it_should_throw_if_relative_path_required_plugin_is_not_pointing_to_file()
     {
         $projectRoot = VfsStream::url('folder_tree') . '/my-plugin';
-        $embeddedWpPath = $projectRoot . '/vendor/lucatume/wp-embedded/src/embedded-wordpress';
+        $embeddedWpPath = $projectRoot . '/my-plugin/vendor/lucatume/wp-embedded/src/embedded-wordpress';
         $pathFinder = new Paths($projectRoot, $embeddedWpPath);
         $filesystem = Test::replace('Symfony\Component\Filesystem\Filesystem')->method('symlink')->get();
         $pluginRelativePath = 'vendor/required-plugins/plugin-b';
