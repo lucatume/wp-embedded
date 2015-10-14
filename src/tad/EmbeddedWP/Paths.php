@@ -7,14 +7,24 @@ use tad\WPBrowser\Utils\PathUtils;
 
 class Paths implements PathFinder
 {
-    /**
-     * @var string
-     */
+    protected $wpRootFolder;
     private $rootDir;
 
-    public function __construct($rootDir = null)
+    public function __construct($rootDir = null,
+        $wpRootFolder = null)
     {
         $this->rootDir = $rootDir ?: __DIR__;
+        $this->wpRootFolder = $wpRootFolder ?: PathUtils::findHereOrInParent('embedded-wordpress', $this->rootDir);
+    }
+
+    public function getWPThemesFolder()
+    {
+        return $this->getWPContentFolder() . '/themes';
+    }
+
+    public function getWPContentFolder()
+    {
+        return $this->getWpRootFolder() . '/wp-content';
     }
 
     /**
@@ -24,17 +34,13 @@ class Paths implements PathFinder
      */
     public function getWpRootFolder()
     {
-        return PathUtils::findHereOrInParent('embedded-wordpress', $this->rootDir);
+        return $this->wpRootFolder;
     }
 
-    public function getWPContentFolder()
+    public function setWPRootFolder($wpRootFolder)
     {
-        return $this->getWpRootFolder() . '/wp-content';
-    }
-
-    public function getWPThemesFolder()
-    {
-        return $this->getWPContentFolder() . '/themes';
+        $this->wpRootFolder = $wpRootFolder;
+        return $this;
     }
 
     public function getWPMuPluginsFolder()
@@ -47,9 +53,6 @@ class Paths implements PathFinder
         return $this->getWPContentFolder() . '/plugins';
     }
 
-    /**
-     * @return string
-     */
     public function getRootDir()
     {
         return $this->rootDir;

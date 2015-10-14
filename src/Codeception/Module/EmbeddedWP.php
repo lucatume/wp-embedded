@@ -37,6 +37,16 @@ class EmbeddedWP extends WPLoader
      */
     private $filesystem;
 
+    public function __construct(ModuleContainer $moduleContainer,
+        $config = null,
+        PathFinder $pathFinder = null,
+        \Symfony\Component\Filesystem\Filesystem $filesystem = null)
+    {
+        parent::__construct($moduleContainer, $config);
+        $this->pathFinder = $pathFinder ?: new Paths(codecept_root_dir());
+        $this->filesystem = $filesystem ?: new \Symfony\Component\Filesystem\Filesystem();
+    }
+
     /**
      * Calls the `activate_{$plugin}` hook for each plugin that requires activation.
      *
@@ -50,7 +60,6 @@ class EmbeddedWP extends WPLoader
             return;
         }
         $activatePlugins = (array)$this->config['activatePlugins'];
-        $sep = DIRECTORY_SEPARATOR;
         $pattern = "~^[A-Za-z0-9-_]{1}[/a-zA-Z0-9-_]*\\.php$~u";
         foreach ($activatePlugins as $plugin) {
             if ($plugin === PathUtils::unleadslashit($this->config['mainFile'])) {
@@ -100,8 +109,8 @@ class EmbeddedWP extends WPLoader
                 $path = $requiredPlugin;
             }
             // require the plugin files
-            if (!file_exists($path)) {
-                throw new ModuleConfigException(__CLASS__, "The required plugin file '{$path}' does not exist; required plugins paths should be relative to the project root folder or absolute paths");
+            if (!(file_exists($path) && is_file($path))) {
+                throw new ModuleConfigException(__CLASS__, "The required plugin file '{$path}' does not exist; required plugins paths should be relative to the project root folder or absolute paths and point to a plugin file.");
             }
             /** @noinspection PhpIncludeInspection */
             require_once $path;
@@ -121,7 +130,7 @@ class EmbeddedWP extends WPLoader
      */
     private function symlinkPlugin($from, $pluginFolder)
     {
-        $linkDestination = $this->pathFinder->getWPMuPluginsFolder() . "/{$pluginFolder}";
+        $linkDestination = $this->pathFinder->getWpPluginsFolder() . "/{$pluginFolder}";
         if (!$this->filesystem->exists($linkDestination)) {
             $this->filesystem->symlink($from, $linkDestination);
         }
@@ -149,7 +158,6 @@ class EmbeddedWP extends WPLoader
         $pluginFolder = basename(codecept_root_dir());
         $this->symlinkPlugin(codecept_root_dir(), $pluginFolder);
     }
-
 
     /**
      * Defines the global constants that will be used by the embedded WP installation.
@@ -228,12 +236,5 @@ class EmbeddedWP extends WPLoader
     protected function getMainPluginBasename()
     {
         return basename(codecept_root_dir()) . DIRECTORY_SEPARATOR . PathUtils::unleadslashit($this->config['mainFile']);
-    }
-
-    public function __construct(ModuleContainer $moduleContainer, $config = null, PathFinder $pathFinder = null, \Symfony\Component\Filesystem\Filesystem $filesystem = null)
-    {
-        parent::__construct($moduleContainer, $config);
-        $this->pathFinder = $pathFinder ?: new Paths(codecept_root_dir());
-        $this->filesystem = $filesystem ?: new \Symfony\Component\Filesystem\Filesystem();
     }
 }

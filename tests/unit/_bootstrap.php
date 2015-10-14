@@ -3,6 +3,9 @@
 use tad\FunctionMocker\FunctionMocker;
 
 FunctionMocker::init();
+/**
+ * @return \Codeception\Lib\ModuleContainer
+ */
 function make_container()
 {
     return \Codeception\Util\Stub::make('Codeception\Lib\ModuleContainer');

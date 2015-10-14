@@ -3,6 +3,7 @@ namespace Codeception\Module;
 
 
 use org\bovigo\vfs\vfsStream;
+use tad\EmbeddedWP\Paths;
 use tad\FunctionMocker\FunctionMocker as Test;
 
 class EmbeddedWPTest extends \Codeception\TestCase\Test
@@ -12,26 +13,11 @@ class EmbeddedWPTest extends \Codeception\TestCase\Test
      */
     protected $tester;
 
-    protected function _before()
-    {
-        Test::setUp();
-        $project_dir = VfsStream::setup('project_dir', null, [
-            'plugins' => ['some-plugin' => ['some-file.php' => 'Plugin main file']],
-            'includes' => ['embedded-wordpress' => []]
-        ]);
-        VfsStream::copyFromFileSystem(dirname(dirname(dirname(dirname(__DIR__)))) . '/src/embedded-wordpress', $project_dir);
-    }
-
-    protected function _after()
-    {
-        Test::tearDown();
-    }
-
     /**
      * @test
-     * it should do activation action if no plugins to activate
+     * it should not do activation action if no plugins to activate
      */
-    public function it_should_do_activation_action_if_no_plugins_to_activate()
+    public function it_should_not_do_activation_action_if_no_plugins_to_activate()
     {
         $sut = new EmbeddedWP(make_container(), []);
         $do_action = Test::replace('do_action');
@@ -63,9 +49,11 @@ class EmbeddedWPTest extends \Codeception\TestCase\Test
      */
     public function it_should_call_activate_action_once_for_each_plugin_to_activate()
     {
-        $plugins = ['plugin-a/plugin-a.php',
+        $plugins = [
+            'plugin-a/plugin-a.php',
             'plugin-b/plugin-b.php',
-            'plugin-c/plugin-c.php'];
+            'plugin-c/plugin-c.php'
+        ];
         $sut = new EmbeddedWP(make_container(), ['activatePlugins' => $plugins]);
         $do_action = Test::replace('do_action');
 
@@ -118,6 +106,11 @@ class EmbeddedWPTest extends \Codeception\TestCase\Test
         $sut->activatePlugins();
     }
 
+    private function expectConfigException()
+    {
+        $this->setExpectedException('Codeception\Exception\ModuleConfigException');
+    }
+
     /**
      * @test
      * it should cast main plugin file to folder and plugin file format
@@ -126,8 +119,10 @@ class EmbeddedWPTest extends \Codeception\TestCase\Test
     {
         $projectRoot = __DIR__;
         $pathFinder = Test::replace('tad\EmbeddedWp\PathFinder')->method('getRootDir', $projectRoot)->get();
-        $config = ['activatePlugins' => 'some-plugin.php',
-            'mainFile' => 'some-plugin.php'];
+        $config = [
+            'activatePlugins' => 'some-plugin.php',
+            'mainFile' => 'some-plugin.php'
+        ];
         $sut = new EmbeddedWP(make_container(), $config, $pathFinder);
         $do_action = Test::replace('do_action');
 
@@ -155,22 +150,97 @@ class EmbeddedWPTest extends \Codeception\TestCase\Test
      */
     public function it_should_allow_for_required_plugin_path_to_be_relative_to_project_root()
     {
-        $projectRoot = VfsStream::url('project_dir');
-        $pathFinder = Test::replace('tad\EmbeddedWP\PathFinder')
-            ->method('getRootDir', $projectRoot)
-            ->method('getWpRootFolder', $projectRoot . '/includes/embedded-wordpress')
-            ->get();
+        $projectRoot = VfsStream::url('folder_tree') . '/my-plugin';
+        $embeddedWpPath = $projectRoot . '/vendor/lucatume/wp-embedded/src/embedded-wordpress';
+        $pathFinder = new Paths($projectRoot, $embeddedWpPath);
         $filesystem = Test::replace('Symfony\Component\Filesystem\Filesystem')->method('symlink')->get();
-        $sut = new EmbeddedWP(make_container(), ['requiredPlugins' => 'plugins/some-plugin/some-file.php'], $pathFinder, $filesystem);
+        $pluginRelativePath = 'vendor/required-plugins/plugin-b/plugin-b.php';
+        $sut = new EmbeddedWP(make_container(), ['requiredPlugins' => $pluginRelativePath], $pathFinder, $filesystem);
 
         $sut->loadRequiredPlugins();
 
-        $filesystem->wasCalledOnce('symlink');
+        $from = dirname($projectRoot . '/' . $pluginRelativePath);
+        $destination = $embeddedWpPath . '/wp-content/plugins/plugin-b';
+        $filesystem->wasCalledWithOnce([$from, $destination], 'symlink');
     }
 
-    private function expectConfigException()
+    /**
+     * @test
+     * it should allow for required plugins to be specified as abspath
+     */
+    public function it_should_allow_for_required_plugins_to_be_specified_as_abspath()
     {
-        $this->setExpectedException('Codeception\Exception\ModuleConfigException');
+        $projectRoot = VfsStream::url('folder_tree');
+        $pluginABasename = 'plugin-a/plugin-a.php';
+        $clonedPluginPath = VfsStream::url('folder_tree') . '/Users/Me/cloned-plugins/' . $pluginABasename;
+        $config = ['requiredPlugins' => $clonedPluginPath];
+        $embeddedWpPath = $projectRoot . '/vendor/lucatume/wp-embedded/src/embedded-wordpress';
+        $pathFinder = new Paths($projectRoot, $embeddedWpPath);
+        $filesystem = Test::replace('Symfony\Component\Filesystem\Filesystem')->method('symlink')->get();
+        $sut = new EmbeddedWP(make_container(), $config, $pathFinder, $filesystem);
+
+        $sut->loadRequiredPlugins();
+
+        $destination = dirname($embeddedWpPath . '/wp-content/plugins/' . $pluginABasename);
+        $from = dirname($clonedPluginPath);
+        $filesystem->wasCalledWithOnce([
+            $from,
+            $destination
+        ], 'symlink');
+    }
+
+    /**
+     * @test
+     * it should throw if required plugin abspath points to folder and not file
+     */
+    public function it_should_throw_if_required_plugin_abspath_points_to_folder_and_not_file()
+    {
+        $projectRoot = VfsStream::url('folder_tree');
+        $clonedPluginPath = VfsStream::url('folder_tree') . '/Users/Me/cloned-plugins/plugin-a';
+        $embeddedWpPath = $projectRoot . '/vendor/lucatume/wp-embedded/src/embedded-wordpress';
+        $config = ['requiredPlugins' => $clonedPluginPath];
+        $pathFinder = (new Paths())->setWPRootFolder($embeddedWpPath);
+        $sut = new EmbeddedWP(make_container(), $config, $pathFinder);
+
+        $this->expectConfigException();
+
+        $sut->loadRequiredPlugins();
+    }
+
+    protected function _before()
+    {
+        Test::setUp();
+        $structure = [
+            'Users' => [
+                'Me' => [
+                    'cloned-plugins' => [
+                        'plugin-a' => [
+                            'plugin-a.php' => '<?php //plugin-a'
+                        ]
+                    ]
+                ]
+            ],
+            'my-plugin' => [
+                'vendor' => [
+                    'required-plugins' => ['plugin-b' => ['plugin-b.php' => '<?php // plugin-b']]
+                ],
+                'lucatume' => [
+                    'wp-embedded' => [
+                        'src' => [
+                            'embedded-wordpress' => [
+
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ];
+        VfsStream::setup('folder_tree', null, $structure);
+    }
+
+    protected function _after()
+    {
+        Test::tearDown();
     }
 }
 
