@@ -3,6 +3,9 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ##[unreleased][Unreleased]
+### Added
+- tests to the suite
+
 ### Changed
 - moved the embedded WP installation folder to the root folder
 
