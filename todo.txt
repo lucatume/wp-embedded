@@ -1,3 +1,2 @@
 Add:
 - theme suport
-- tests
