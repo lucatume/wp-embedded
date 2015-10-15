@@ -1,2 +1,2 @@
 Add:
-- theme suport
+- theme support
