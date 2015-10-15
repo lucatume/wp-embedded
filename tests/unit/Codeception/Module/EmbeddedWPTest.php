@@ -117,18 +117,19 @@ class EmbeddedWPTest extends \Codeception\TestCase\Test
      */
     public function it_should_cast_main_plugin_file_to_folder_and_plugin_file_format()
     {
-        $projectRoot = __DIR__;
-        $pathFinder = Test::replace('tad\EmbeddedWp\PathFinder')->method('getRootDir', $projectRoot)->get();
+        $projectRoot = vfsStream::url('folder_tree/my-plugin');
+        $pathFinder = new Paths($projectRoot, $projectRoot . '/vendor/lucatume/wp-embedded/embedded-wordpress');
         $config = [
-            'activatePlugins' => 'some-plugin.php',
-            'mainFile' => 'some-plugin.php'
+            'activatePlugins' => 'my-plugin.php',
+            'mainFile' => 'my-plugin.php'
         ];
         $sut = new EmbeddedWP(make_container(), $config, $pathFinder);
         $do_action = Test::replace('do_action');
 
         $sut->activatePlugins();
 
-        $do_action->wasCalledWithOnce(['activate_' . basename(__DIR__) . '/some-plugin.php']);
+        $pluginBasename = basename($projectRoot) . '/my-plugin.php';
+        $do_action->wasCalledWithOnce(['activate_' . $pluginBasename]);
     }
 
     /**
@@ -320,11 +321,13 @@ class EmbeddedWPTest extends \Codeception\TestCase\Test
             ],
             'my-plugin' => [
                 'vendor' => [
-                    'required-plugins' => ['plugin-b' => ['plugin-b.php' => '<?php // plugin-b']]
-                ],
-                'lucatume' => [
-                    'wp-embedded' => [
-                        'src' => [
+                    'required-plugins' => [
+                        'plugin-b' => [
+                            'plugin-b.php' => '<?php // plugin-b'
+                        ]
+                    ],
+                    'lucatume' => [
+                        'wp-embedded' => [
                             'embedded-wordpress' => [
                                 // EmbeddedWp will look up this file to make sure this is a valid WP install
                                 'wp-settings.php' => '<?php // wp-settings.php'

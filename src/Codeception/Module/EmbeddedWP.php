@@ -67,17 +67,13 @@ class EmbeddedWP extends WPLoader
         if (empty($this->config['activatePlugins'])) {
             return;
         }
+
         $activatePlugins = (array)$this->config['activatePlugins'];
-        $pattern = "~^[A-Za-z0-9-_]{1}[/a-zA-Z0-9-_]*\\.php$~u";
+        $this->config['_rootDir'] = $this->pathFinder->getRootDir();
+
         foreach ($activatePlugins as $plugin) {
-            if ($plugin === PathUtils::unleadslashit($this->config['mainFile'])) {
-                $plugin = basename($this->pathFinder->getRootDir()) . DIRECTORY_SEPARATOR . $plugin;
-            }
-            $plugin = PathUtils::unleadslashit($plugin);
-            if (!preg_match($pattern, $plugin)) {
-                throw new ModuleConfigException(__CLASS__, "Format for `activatePlugins` entries should be 'pluginFolder/pluginFile.php' or 'single-file.php' ([a-rA-Z0-9-_] pattern allowed), {$plugin} is not valid.");
-            }
-            do_action("activate_$plugin");
+            $activationCandidate = new \tad\EmbeddedWP\PluginActivation($plugin, $this->config);
+            $activationCandidate->activate();
         }
     }
 
