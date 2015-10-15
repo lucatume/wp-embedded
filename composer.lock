@@ -5,6 +5,7 @@
         "This file is @generated automatically"
     ],
     "hash": "e73df341822a69c9d3cbc84ece986ad5",
+    "content-hash": "086ba0e917182c5aadce0b05aa3f85a0",
     "packages": [
         {
             "name": "bacon/bacon-string-utils",
@@ -65,12 +66,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/Codeception.git",
-                "reference": "35cff9d31b30eeb994a8645e84fef8457187981a"
+                "reference": "a14939089e10c60f072bdd617c8fa9969b29aebf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/Codeception/zipball/35cff9d31b30eeb994a8645e84fef8457187981a",
-                "reference": "35cff9d31b30eeb994a8645e84fef8457187981a",
+                "url": "https://api.github.com/repos/Codeception/Codeception/zipball/a14939089e10c60f072bdd617c8fa9969b29aebf",
+                "reference": "a14939089e10c60f072bdd617c8fa9969b29aebf",
                 "shasum": ""
             },
             "require": {
@@ -137,7 +138,7 @@
                 "functional testing",
                 "unit testing"
             ],
-            "time": "2015-10-12 08:51:00"
+            "time": "2015-10-14 15:35:14"
         },
         {
             "name": "doctrine/instantiator",
@@ -240,12 +241,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/guzzle.git",
-                "reference": "6d6c3a68fbea09c50b251553d59b9209b475e272"
+                "reference": "90d7d39a97295a932ce597f12d6b65da7be8bad3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/6d6c3a68fbea09c50b251553d59b9209b475e272",
-                "reference": "6d6c3a68fbea09c50b251553d59b9209b475e272",
+                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/90d7d39a97295a932ce597f12d6b65da7be8bad3",
+                "reference": "90d7d39a97295a932ce597f12d6b65da7be8bad3",
                 "shasum": ""
             },
             "require": {
@@ -294,7 +295,7 @@
                 "rest",
                 "web service"
             ],
-            "time": "2015-10-05 21:30:32"
+            "time": "2015-10-15 06:47:57"
         },
         {
             "name": "guzzlehttp/promises",
@@ -411,12 +412,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/lucatume/wp-browser.git",
-                "reference": "0e39295634e31f4b0c3db4eba31702546cac298c"
+                "reference": "c7769bce8f071ccc30d4c7beb87367ad498ba9ed"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/lucatume/wp-browser/zipball/0e39295634e31f4b0c3db4eba31702546cac298c",
-                "reference": "0e39295634e31f4b0c3db4eba31702546cac298c",
+                "url": "https://api.github.com/repos/lucatume/wp-browser/zipball/c7769bce8f071ccc30d4c7beb87367ad498ba9ed",
+                "reference": "c7769bce8f071ccc30d4c7beb87367ad498ba9ed",
                 "shasum": ""
             },
             "require": {
@@ -459,7 +460,7 @@
                 "codeception",
                 "wordpress"
             ],
-            "time": "2015-10-12 13:29:02"
+            "time": "2015-10-14 15:55:55"
         },
         {
             "name": "phpdocumentor/reflection-docblock",
@@ -816,12 +817,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "00194eb95989190a73198390ceca081ad3441a7f"
+                "reference": "be067d6105286b74272facefc2697038f8807b77"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/00194eb95989190a73198390ceca081ad3441a7f",
-                "reference": "00194eb95989190a73198390ceca081ad3441a7f",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/be067d6105286b74272facefc2697038f8807b77",
+                "reference": "be067d6105286b74272facefc2697038f8807b77",
                 "shasum": ""
             },
             "require": {
@@ -880,7 +881,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2015-10-12 03:36:47"
+            "time": "2015-10-14 13:49:40"
         },
         {
             "name": "phpunit/phpunit-mock-objects",
