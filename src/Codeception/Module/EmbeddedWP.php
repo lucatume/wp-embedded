@@ -237,9 +237,6 @@ class EmbeddedWP extends WPLoader
                 define($key, $value);
             }
         }
-
-        // spoof plugins config value
-        $this->config['plugins'] = [$this->config['mainFile']];
     }
 
     protected function getWpRootFolder()
