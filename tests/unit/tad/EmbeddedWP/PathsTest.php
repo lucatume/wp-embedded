@@ -67,7 +67,7 @@ class PathsTest extends \Codeception\TestCase\Test
 
     private function getRootFolder($frag = null)
     {
-        return codecept_root_dir('src/embedded-wordpress' . $frag);
+        return codecept_root_dir('embedded-wordpress' . $frag);
     }
 
 }
