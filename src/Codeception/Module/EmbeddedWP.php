@@ -11,7 +11,8 @@ use tad\WPBrowser\Utils\PathUtils;
 class EmbeddedWP extends WPLoader
 {
     protected $requiredFields = array('mainFile');
-    protected $config = array('dbDir' => false,
+    protected $config = array(
+        'dbDir' => false,
         'dbFile' => 'wordpress',
         'wpDebug' => true,
         'multisite' => false,
@@ -27,7 +28,14 @@ class EmbeddedWP extends WPLoader
         'mainFile' => '',
         'requiredPlugins' => [],
         'activatePlugins' => '',
-        'bootstrapActions' => '');
+        'bootstrapActions' => ''
+    );
+
+    /**
+     * @var  string The absolute path to the main plugin file.
+     */
+    protected $mainPluginFileAbspath;
+
     /**
      * @var PathFinder
      */
@@ -67,7 +75,7 @@ class EmbeddedWP extends WPLoader
             }
             $plugin = PathUtils::unleadslashit($plugin);
             if (!preg_match($pattern, $plugin)) {
-                throw new ModuleConfigException(__CLASS__, "Format for `activatePlugins` entries should be 'pluginFolder/pluginFile.php' or 'single-file.php' ([a-zA-Z0-9-_] pattern allowed), {$plugin} is not valid.");
+                throw new ModuleConfigException(__CLASS__, "Format for `activatePlugins` entries should be 'pluginFolder/pluginFile.php' or 'single-file.php' ([a-rA-Z0-9-_] pattern allowed), {$plugin} is not valid.");
             }
             do_action("activate_$plugin");
         }
@@ -128,7 +136,8 @@ class EmbeddedWP extends WPLoader
      *
      * @return void
      */
-    private function symlinkPlugin($from, $pluginFolder)
+    private function symlinkPlugin($from,
+        $pluginFolder)
     {
         $linkDestination = $this->pathFinder->getWpPluginsFolder() . "/{$pluginFolder}";
         if (!$this->filesystem->exists($linkDestination)) {
@@ -137,26 +146,56 @@ class EmbeddedWP extends WPLoader
     }
 
     /**
-     * Requires the main plugin file.
+     * Requires the main plugin file and symlinks it in the embedded
+     * WP installation folder.
      *
-     * @throws ModuleConfigException If the specified main plugin file was not found in the the project root folder.
+     * @throws ModuleConfigException If the specified main plugin file was not found
+     * in the the project root folder.
      *
      * @return void
      */
-    private function loadMainPlugin()
+    public function loadMainPlugin()
     {
         if (empty($this->config['mainFile'])) {
             return;
         }
-        $mainFile = PathUtils::unleadslashit($this->config['mainFile']);
-        $realPath = realpath(codecept_root_dir(DIRECTORY_SEPARATOR . $mainFile));
-        if (!file_exists($realPath)) {
-            throw new ModuleConfigException(__CLASS__, "The '{$mainFile}' file was not found in the '{$realPath}' path; this might be due to a wrong configuration of the `mainFile` setting.");
-        }
+
+        $path = $this->getMainPluginFileAbspath();
+
         /** @noinspection PhpIncludeInspection */
-        require_once $realPath;
-        $pluginFolder = basename(codecept_root_dir());
-        $this->symlinkPlugin(codecept_root_dir(), $pluginFolder);
+        require_once $path;
+
+        $this->symlinkMainPluginFile($path);
+    }
+
+    /**
+     * @return string
+     * @throws ModuleConfigException
+     */
+    protected function getMainPluginFileAbspath()
+    {
+        if (empty($this->mainPluginFileAbspath)) {
+            $mainFile = PathUtils::unleadslashit($this->config['mainFile']);
+            if (!file_exists($mainFile)) {
+                $path = $this->pathFinder->getRootDir() . DIRECTORY_SEPARATOR . $mainFile;
+            } else {
+                $path = $mainFile;
+            }
+            if (!file_exists($path)) {
+                throw new ModuleConfigException(__CLASS__, "The '{$mainFile}' file was not found in the '{$path}' path; this might be due to a wrong configuration of the `mainFile` setting.");
+            }
+            $this->mainPluginFileAbspath = $path;
+        }
+        return $this->mainPluginFileAbspath;
+    }
+
+    /**
+     * @param $path
+     */
+    protected function symlinkMainPluginFile($path)
+    {
+        $pluginFolder = basename(dirname($path));
+        $this->symlinkPlugin($this->pathFinder->getRootDir(), $pluginFolder);
     }
 
     /**
@@ -173,7 +212,8 @@ class EmbeddedWP extends WPLoader
         // load an extra config file if any
         $this->loadConfigFile($wpRootFolder);
 
-        $constants = array('ABSPATH' => $wpRootFolder,
+        $constants = array(
+            'ABSPATH' => $wpRootFolder,
             'DB_NAME' => 'spoof',
             'DB_USER' => 'spoof',
             'DB_PASSWORD' => 'spoof',
@@ -189,7 +229,8 @@ class EmbeddedWP extends WPLoader
             'WP_PHP_BINARY' => $this->config['phpBinary'],
             'WPLANG' => $this->config['language'],
             'WP_DEBUG' => $this->config['wpDebug'],
-            'WP_TESTS_MULTISITE' => $this->config['multisite']);
+            'WP_TESTS_MULTISITE' => $this->config['multisite']
+        );
 
         foreach ($constants as $key => $value) {
             if (!defined($key)) {
