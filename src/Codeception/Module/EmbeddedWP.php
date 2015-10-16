@@ -4,8 +4,10 @@ namespace Codeception\Module;
 
 use Codeception\Exception\ModuleConfigException;
 use Codeception\Lib\ModuleContainer;
+use tad\EmbeddedWP\MainPluginLoader;
 use tad\EmbeddedWP\PathFinder;
 use tad\EmbeddedWP\Paths;
+use tad\EmbeddedWP\PluginLoader;
 use tad\WPBrowser\Utils\PathUtils;
 
 class EmbeddedWP extends WPLoader
@@ -105,39 +107,9 @@ class EmbeddedWP extends WPLoader
 
         $requiredPlugins = (array)$this->config['requiredPlugins'];
         foreach ($requiredPlugins as $requiredPlugin) {
-            if (!file_exists($requiredPlugin)) {
-                // relative path to required plugin
-                $path = $this->pathFinder->getRootDir() . DIRECTORY_SEPARATOR . PathUtils::unleadslashit($requiredPlugin);
-            } else {
-                // absolute path to required plugin
-                $path = $requiredPlugin;
-            }
-            // require the plugin files
-            if (!(file_exists($path) && is_file($path))) {
-                throw new ModuleConfigException(__CLASS__, "The required plugin file '{$path}' does not exist; required plugins paths should be relative to the project root folder or absolute paths and point to a plugin file.");
-            }
-            /** @noinspection PhpIncludeInspection */
-            require_once $path;
-            // `/Users/Me/Plugins/my-plugin/my-plugin.php` to `my-plugin`
-            $pluginFolder = basename(dirname($path));
-            $this->symlinkPlugin(dirname($path), $pluginFolder);
-        }
-    }
-
-    /**
-     * Creates a symbolic link in the embedded WP plugins folder to the the real plugin folder.
-     *
-     * @param string $from
-     * @param string $pluginFolder
-     *
-     * @return void
-     */
-    private function symlinkPlugin($from,
-        $pluginFolder)
-    {
-        $linkDestination = $this->pathFinder->getWpPluginsFolder() . "/{$pluginFolder}";
-        if (!$this->filesystem->exists($linkDestination)) {
-            $this->filesystem->symlink($from, $linkDestination);
+            $pluginLoader = new PluginLoader($requiredPlugin, $this->pathFinder, $this->filesystem);
+            $pluginLoader->requireIt();
+            $pluginLoader->symlinkIt();
         }
     }
 
@@ -155,43 +127,9 @@ class EmbeddedWP extends WPLoader
         if (empty($this->config['mainFile'])) {
             return;
         }
-
-        $path = $this->getMainPluginFileAbspath();
-
-        /** @noinspection PhpIncludeInspection */
-        require_once $path;
-
-        $this->symlinkMainPluginFile($path);
-    }
-
-    /**
-     * @return string
-     * @throws ModuleConfigException
-     */
-    protected function getMainPluginFileAbspath()
-    {
-        if (empty($this->mainPluginFileAbspath)) {
-            $mainFile = PathUtils::unleadslashit($this->config['mainFile']);
-            if (!file_exists($mainFile)) {
-                $path = $this->pathFinder->getRootDir() . DIRECTORY_SEPARATOR . $mainFile;
-            } else {
-                $path = $mainFile;
-            }
-            if (!file_exists($path)) {
-                throw new ModuleConfigException(__CLASS__, "The '{$mainFile}' file was not found in the '{$path}' path; this might be due to a wrong configuration of the `mainFile` setting.");
-            }
-            $this->mainPluginFileAbspath = $path;
-        }
-        return $this->mainPluginFileAbspath;
-    }
-
-    /**
-     * @param $path
-     */
-    protected function symlinkMainPluginFile($path)
-    {
-        $pluginFolder = basename(dirname($path));
-        $this->symlinkPlugin($this->pathFinder->getRootDir(), $pluginFolder);
+        $pluginLoader = new MainPluginLoader($this->config['mainFile'], $this->pathFinder, $this->filesystem);
+        $pluginLoader->requireIt();
+        $pluginLoader->symlinkIt();
     }
 
     /**
@@ -203,7 +141,7 @@ class EmbeddedWP extends WPLoader
      */
     protected function defineGlobals()
     {
-        $wpRootFolder = $this->getWpRootFolder();
+        $wpRootFolder = $this->pathFinder->getWpRootFolder();
 
         // load an extra config file if any
         $this->loadConfigFile($wpRootFolder);
@@ -233,11 +171,6 @@ class EmbeddedWP extends WPLoader
                 define($key, $value);
             }
         }
-    }
-
-    protected function getWpRootFolder()
-    {
-        return $this->pathFinder->getWpRootFolder();
     }
 
     /**
