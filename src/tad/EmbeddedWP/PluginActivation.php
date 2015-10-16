@@ -20,6 +20,10 @@ class PluginActivation
      * @var array
      */
     private $config;
+    /**
+     * @var PathFinder
+     */
+    private $pathFinder;
 
     /**
      * PluginActivation constructor.
@@ -28,13 +32,17 @@ class PluginActivation
      * @throws ModuleConfigException
      */
     public function __construct($pluginBasename,
-        $config)
+        array $config,
+        PathFinder $pathFinder)
     {
+        if (!is_string($pluginBasename)) {
+            throw new ModuleConfigException(__CLASS__, 'Plugin basename must be a string.');
+        }
         $this->config = $config;
-        $this->mainFile = $this->config['mainFile'];
+        $this->pathFinder = $pathFinder;
+        $this->mainFile = empty($this->config['mainFile']) ? false : $this->config['mainFile'];
         $pluginBasename = $this->maybeCastMainPluginFile($pluginBasename);
-        $pluginBasename = PathUtils::unleadslashit($pluginBasename);
-        $this->ensurePluginBasenamePattern($pluginBasename);
+        $pluginBasename = $this->ensurePluginBasenamePattern($pluginBasename);
         $this->pluginBasename = $pluginBasename;
     }
 
@@ -44,9 +52,11 @@ class PluginActivation
      */
     protected function maybeCastMainPluginFile($pluginBasename)
     {
-        if ($pluginBasename === PathUtils::unleadslashit($this->mainFile)) {
-            $pluginBasename = basename($this->config['_rootDir']) . DIRECTORY_SEPARATOR . $pluginBasename;
-            return $pluginBasename;
+        if ($this->mainFile) {
+            if ($pluginBasename === PathUtils::unleadslashit($this->mainFile)) {
+                $pluginBasename = basename($this->pathFinder->getRootDir()) . DIRECTORY_SEPARATOR . $pluginBasename;
+                return $pluginBasename;
+            }
         }
         return $pluginBasename;
     }
@@ -57,10 +67,18 @@ class PluginActivation
      */
     protected function ensurePluginBasenamePattern($pluginBasenameCandidate)
     {
-        $pattern = "~^[A-Za-z0-9-_]{1}[/a-zA-Z0-9-_]*\\.php$~u";
-        if (!preg_match($pattern, $pluginBasenameCandidate)) {
-            throw new ModuleConfigException(__CLASS__, "Format for `activatePlugins` entries should be 'pluginFolder/pluginFile.php' or 'single-file.php' ([a-rA-Z0-9-_] pattern allowed), {$pluginBasenameCandidate} is not valid.");
+        if (is_file($pluginBasenameCandidate)) {
+            $pluginBasename = basename(dirname($pluginBasenameCandidate)) . DIRECTORY_SEPARATOR . basename($pluginBasenameCandidate);
+        } else {
+            $pluginBasenameCandidate = PathUtils::unleadslashit($pluginBasenameCandidate);
+            $pattern = "~^[\\w\\d-_^\\s]*(\\/{1}[\\w\\d-_^\\s]*){0,1}.php$~u";
+            if (!preg_match($pattern, $pluginBasenameCandidate)) {
+                throw new ModuleConfigException(__CLASS__, "Format for `activatePlugins` entries should be 'pluginFolder/pluginFile.php' or 'single-file.php' format, {$pluginBasenameCandidate} is not valid.");
+            }
+            $pluginBasename = $pluginBasenameCandidate;
         }
+
+        return $pluginBasename;
     }
 
     /**

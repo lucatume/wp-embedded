@@ -80,7 +80,7 @@ class EmbeddedWP extends WPLoader
         $this->config['_rootDir'] = $this->pathFinder->getRootDir();
 
         foreach ($activatePlugins as $plugin) {
-            $activationCandidate = new \tad\EmbeddedWP\PluginActivation($plugin, $this->config);
+            $activationCandidate = new \tad\EmbeddedWP\PluginActivation($plugin, $this->config, $this->pathFinder);
             $activationCandidate->activate();
         }
     }
