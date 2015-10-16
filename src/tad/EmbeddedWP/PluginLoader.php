@@ -32,6 +32,9 @@ class PluginLoader
         PathFinder $pathFinder,
         Filesystem $filesystem)
     {
+        if (!is_string($pluginPath)) {
+            throw new ModuleConfigException(__CLASS__, 'Plugin paht must be a string.');
+        }
         $this->pathFinder = $pathFinder;
         $this->filesystem = $filesystem;
         if (!file_exists($pluginPath)) {
