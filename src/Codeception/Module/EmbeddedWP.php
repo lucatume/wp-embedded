@@ -43,18 +43,24 @@ class EmbeddedWP extends WPLoader
      */
     private $pathFinder;
     /**
-     * @var \Symfony\Component\Filesystem\Filesystem
+     * @var \tad\WPBrowser\Filesystem
      */
     private $filesystem;
 
+    /**
+     * @param ModuleContainer $moduleContainer
+     * @param null $config
+     * @param PathFinder|null $pathFinder
+     * @param \tad\WPBrowser\Filesystem|null $filesystem
+     */
     public function __construct(ModuleContainer $moduleContainer,
         $config = null,
         PathFinder $pathFinder = null,
-        \Symfony\Component\Filesystem\Filesystem $filesystem = null)
+        \tad\WPBrowser\Filesystem $filesystem = null)
     {
         parent::__construct($moduleContainer, $config);
         $this->pathFinder = $pathFinder ?: new Paths(codecept_root_dir());
-        $this->filesystem = $filesystem ?: new \Symfony\Component\Filesystem\Filesystem();
+        $this->filesystem = $filesystem ?: new \tad\WPBrowser\Filesystem();
     }
 
     /**
@@ -180,7 +186,10 @@ class EmbeddedWP extends WPLoader
      */
     protected function setActivePlugins()
     {
-        $activePlugins = [$this->getMainPluginBasename()];
+        $activePlugins = [];
+        if (!empty($this->config['mainFile'])) {
+            $activePlugins[] = $this->getMainPluginBasename();
+        }
         if (!empty($this->config['requiredPlugins'])) {
             $requiredPlugins = is_array($this->config['requiredPlugins']) ? $this->config['requiredPlugins'] : [$this->config['requiredPlugins']];
             foreach ($requiredPlugins as $plugin) {

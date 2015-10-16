@@ -1,7 +1,7 @@
 <?php
-namespace Codeception\Module;
+namespace tad\EmbeddedWp\Tests;
 
-
+use Codeception\Module\EmbeddedWP;
 use org\bovigo\vfs\vfsStream;
 use tad\EmbeddedWP\Paths;
 use tad\FunctionMocker\FunctionMocker as Test;
@@ -12,6 +12,7 @@ class EmbeddedWPTest extends \Codeception\TestCase\Test
      * @var \UnitTester
      */
     protected $tester;
+    protected $rootDirName = 'EmbeddedWpTest';
 
     /**
      * @test
@@ -156,20 +157,20 @@ class EmbeddedWPTest extends \Codeception\TestCase\Test
      */
     public function it_should_allow_for_the_main_plugin_file_to_be_specified_as_abspath()
     {
-        $this->assertFalse(defined('MYPLUGINREQUIRED'));
-
-        $projectRoot = VfsStream::url('folder_tree') . '/my-plugin';
+        $projectRoot = VfsStream::url($this->rootDirName) . '/my-plugin';
         $mainPluginFilePath = $projectRoot . '/my-plugin.php';
-        $config = ['mainFile' => $mainPluginFilePath];
-        $filesystem = Test::replace('Symfony\Component\Filesystem\Filesystem')->method('symlink')->get();
+        $filesystem = Test::replace('\tad\WPBrowser\Filesystem')
+            ->method('symlink')
+            ->method('requireOnce')
+            ->get();
         $embeddedWpPath = $projectRoot . '/vendor/lucatume/wp-embedded/src/embedded-wordpress';
         $pathFinder = new Paths($projectRoot, $embeddedWpPath);
+        $config = ['mainFile' => $mainPluginFilePath];
         $sut = new EmbeddedWP(make_container(), $config, $pathFinder, $filesystem);
 
         $sut->loadMainPlugin();
 
-        $this->assertTrue(defined('MYPLUGINREQUIRED'));
-        $this->assertEquals(1, MYPLUGINREQUIRED);
+        $filesystem->wasCalledWithOnce([$mainPluginFilePath], 'requireOnce');
     }
 
     /**
@@ -178,10 +179,10 @@ class EmbeddedWPTest extends \Codeception\TestCase\Test
      */
     public function it_should_symlink_the_main_plugin_file_in_the_embedded_wp_installation()
     {
-        $projectRoot = VfsStream::url('folder_tree') . '/my-plugin';
+        $projectRoot = VfsStream::url($this->rootDirName) . '/my-plugin';
         $mainPluginFilePath = $projectRoot . '/my-plugin.php';
         $config = ['mainFile' => $mainPluginFilePath];
-        $filesystem = Test::replace('Symfony\Component\Filesystem\Filesystem')->method('symlink')->get();
+        $filesystem = Test::replace('\tad\WPBrowser\Filesystem')->method('symlink')->get();
         $embeddedWpPath = $projectRoot . '/vendor/lucatume/wp-embedded/src/embedded-wordpress';
         $pathFinder = new Paths($projectRoot, $embeddedWpPath);
         $sut = new EmbeddedWP(make_container(), $config, $pathFinder, $filesystem);
@@ -212,10 +213,10 @@ class EmbeddedWPTest extends \Codeception\TestCase\Test
      */
     public function it_should_allow_for_required_plugin_path_to_be_relative_to_project_root()
     {
-        $projectRoot = VfsStream::url('folder_tree') . '/my-plugin';
+        $projectRoot = VfsStream::url($this->rootDirName) . '/my-plugin';
         $embeddedWpPath = $projectRoot . '/vendor/lucatume/wp-embedded/src/embedded-wordpress';
         $pathFinder = new Paths($projectRoot, $embeddedWpPath);
-        $filesystem = Test::replace('Symfony\Component\Filesystem\Filesystem')->method('symlink')->get();
+        $filesystem = Test::replace('\tad\WPBrowser\Filesystem')->method('symlink')->get();
         $pluginRelativePath = 'vendor/required-plugins/plugin-b/plugin-b.php';
         $sut = new EmbeddedWP(make_container(), ['requiredPlugins' => $pluginRelativePath], $pathFinder, $filesystem);
 
@@ -232,7 +233,7 @@ class EmbeddedWPTest extends \Codeception\TestCase\Test
      */
     public function it_should_not_activate_required_plugins_if_not_specified()
     {
-        $projectRoot = VfsStream::url('folder_tree') . '/my-plugin';
+        $projectRoot = VfsStream::url($this->rootDirName) . '/my-plugin';
         $embeddedWpPath = $projectRoot . '/vendor/lucatume/wp-embedded/src/embedded-wordpress';
         $pathFinder = new Paths($projectRoot, $embeddedWpPath);
         $pluginRelativePath = 'vendor/required-plugins/plugin-b/plugin-b.php';
@@ -251,13 +252,13 @@ class EmbeddedWPTest extends \Codeception\TestCase\Test
      */
     public function it_should_allow_for_required_plugins_to_be_specified_as_abspath()
     {
-        $rootFolder = VfsStream::url('folder_tree');
+        $rootFolder = VfsStream::url($this->rootDirName);
         $pluginABasename = 'plugin-a/plugin-a.php';
         $clonedPluginPath = $rootFolder . '/Users/Me/cloned-plugins/' . $pluginABasename;
         $config = ['requiredPlugins' => $clonedPluginPath];
         $embeddedWpPath = $rootFolder . '/my-plugin/vendor/lucatume/wp-embedded/src/embedded-wordpress';
         $pathFinder = new Paths($rootFolder, $embeddedWpPath);
-        $filesystem = Test::replace('Symfony\Component\Filesystem\Filesystem')->method('symlink')->get();
+        $filesystem = Test::replace('\tad\WPBrowser\Filesystem')->method('symlink')->get();
         $sut = new EmbeddedWP(make_container(), $config, $pathFinder, $filesystem);
 
         $sut->loadRequiredPlugins();
@@ -276,8 +277,8 @@ class EmbeddedWPTest extends \Codeception\TestCase\Test
      */
     public function it_should_throw_if_required_plugin_abspath_points_to_folder_and_not_file()
     {
-        $projectRoot = VfsStream::url('folder_tree');
-        $clonedPluginPath = VfsStream::url('folder_tree') . '/Users/Me/cloned-plugins/plugin-a';
+        $projectRoot = VfsStream::url($this->rootDirName);
+        $clonedPluginPath = VfsStream::url($this->rootDirName) . '/Users/Me/cloned-plugins/plugin-a';
         $embeddedWpPath = $projectRoot . '/my-plugin/vendor/lucatume/wp-embedded/src/embedded-wordpress';
         $config = ['requiredPlugins' => $clonedPluginPath];
         $pathFinder = (new Paths())->setWPRootFolder($embeddedWpPath);
@@ -294,10 +295,10 @@ class EmbeddedWPTest extends \Codeception\TestCase\Test
      */
     public function it_should_throw_if_relative_path_required_plugin_is_not_pointing_to_file()
     {
-        $projectRoot = VfsStream::url('folder_tree') . '/my-plugin';
+        $projectRoot = VfsStream::url($this->rootDirName) . '/my-plugin';
         $embeddedWpPath = $projectRoot . '/my-plugin/vendor/lucatume/wp-embedded/src/embedded-wordpress';
         $pathFinder = new Paths($projectRoot, $embeddedWpPath);
-        $filesystem = Test::replace('Symfony\Component\Filesystem\Filesystem')->method('symlink')->get();
+        $filesystem = Test::replace('\tad\WPBrowser\Filesystem')->method('symlink')->get();
         $pluginRelativePath = 'vendor/required-plugins/plugin-b';
         $sut = new EmbeddedWP(make_container(), ['requiredPlugins' => $pluginRelativePath], $pathFinder, $filesystem);
 
@@ -335,10 +336,10 @@ class EmbeddedWPTest extends \Codeception\TestCase\Test
                         ]
                     ]
                 ],
-                'my-plugin.php' => "<?php define('MYPLUGINREQUIRED', 1);"
+                'my-plugin.php' => "<?php //my-plugin contents"
             ]
         ];
-        VfsStream::setup('folder_tree', null, $structure);
+        VfsStream::setup($this->rootDirName, null, $structure);
     }
 
     protected function _after()

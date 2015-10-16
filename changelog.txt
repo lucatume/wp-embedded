@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 - moved the embedded WP installation folder to the root folder
+- code refactoring and cleanup
 
 ##[0.0.2] - 2015-10-09
 ### Added

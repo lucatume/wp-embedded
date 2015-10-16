@@ -4,7 +4,7 @@ namespace tad\EmbeddedWP;
 
 
 use Codeception\Exception\ModuleConfigException;
-use Symfony\Component\Filesystem\Filesystem;
+use tad\WPBrowser\Filesystem;
 use tad\WPBrowser\Utils\PathUtils;
 
 class PluginLoader
@@ -23,8 +23,10 @@ class PluginLoader
     protected $filesystem;
 
     /**
-     * PluginLoader constructor.
      * @param $pluginPath
+     * @param PathFinder $pathFinder
+     * @param Filesystem $filesystem
+     * @throws ModuleConfigException
      */
     public function __construct($pluginPath,
         PathFinder $pathFinder,
@@ -49,7 +51,7 @@ class PluginLoader
 
     public function requireIt()
     {
-        require_once $this->path;
+        $this->filesystem->requireOnce($this->path);
     }
 
     public function symlinkIt()

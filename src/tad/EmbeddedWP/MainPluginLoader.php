@@ -3,20 +3,24 @@
 namespace tad\EmbeddedWP;
 
 use Codeception\Exception\ModuleConfigException;
+use tad\WPBrowser\Filesystem;
 use tad\WPBrowser\Utils\PathUtils;
 
 class MainPluginLoader extends PluginLoader
 {
     /**
-     * MainPluginLoader constructor.
      * @param $mainFile
-     * @param PathFinder|Paths $pathFinder
-     * @param \Symfony\Component\Filesystem\Filesystem $filesystem
+     * @param PathFinder $pathFinder
+     * @param Filesystem $filesystem
+     * @throws ModuleConfigException
      */
     public function __construct($mainFile,
-        $pathFinder,
-        $filesystem)
+        PathFinder $pathFinder,
+        Filesystem $filesystem)
     {
+        if (!is_string($mainFile)) {
+            throw new ModuleConfigException(__CLASS__, 'Main file setting must be a string');
+        }
         $path = $this->getMainPluginFileAbspath($mainFile, $pathFinder->getRootDir());
         parent::__construct($path, $pathFinder, $filesystem);
     }
