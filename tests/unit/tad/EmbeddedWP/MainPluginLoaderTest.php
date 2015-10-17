@@ -2,6 +2,8 @@
 namespace tad\EmbeddedWp;
 
 use org\bovigo\vfs\vfsStream;
+use tad\EmbeddedWP\Filesystem\Paths;
+use tad\EmbeddedWP\Plugin\MainPluginLoader;
 use tad\EmbeddedWp\Tests\EmbeddedWPTest;
 use tad\FunctionMocker\FunctionMocker as Test;
 
@@ -37,7 +39,7 @@ class MainPluginLoaderTest extends EmbeddedWPTest
     {
         $this->setExpectedException('Codeception\Exception\ModuleConfigException');
 
-        $sut = new MainPluginLoader($notAString,new Paths(),new \tad\WPBrowser\Filesystem());
+        new MainPluginLoader($notAString, new Paths(), new \tad\WPBrowser\Filesystem\Filesystem());
     }
 
     /**
@@ -48,7 +50,17 @@ class MainPluginLoaderTest extends EmbeddedWPTest
     {
         $this->setExpectedException('Codeception\Exception\ModuleConfigException');
 
-        $sut = $this->getSut('/some/path/plugin/plugin.php');
+        $this->getSut('/some/path/plugin/plugin.php');
+    }
+
+    /**
+     * @return MainPluginLoader
+     */
+    protected function getSut($mainFile = null)
+    {
+        $mainFile = $mainFile ?: $this->mainPluginFilePath;
+        $sut = new MainPluginLoader($mainFile, $this->pathFinder, $this->filesystem);
+        return $sut;
     }
 
     /**
@@ -63,7 +75,6 @@ class MainPluginLoaderTest extends EmbeddedWPTest
 
         $this->filesystem->wasCalledWithOnce([$this->mainPluginFilePath], 'requireOnce');
     }
-
 
     /**
      * @test
@@ -88,15 +99,5 @@ class MainPluginLoaderTest extends EmbeddedWPTest
         $this->filesystem = Test::replace('tad\WPBrowser\Filesystem')->method('symlink')->method('requireOnce')->get();
         $this->embeddedWpPath = $projectRoot . '/vendor/lucatume/wp-embedded/src/embedded-wordpress';
         $this->pathFinder = new Paths($projectRoot, $this->embeddedWpPath);
-    }
-
-    /**
-     * @return MainPluginLoader
-     */
-    protected function getSut($mainFile = null)
-    {
-        $mainFile = $mainFile ?: $this->mainPluginFilePath;
-        $sut = new MainPluginLoader($mainFile, $this->pathFinder, $this->filesystem);
-        return $sut;
     }
 }

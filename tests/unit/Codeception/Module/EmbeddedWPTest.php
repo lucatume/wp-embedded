@@ -3,7 +3,7 @@ namespace tad\EmbeddedWp\Tests;
 
 use Codeception\Module\EmbeddedWP;
 use org\bovigo\vfs\vfsStream;
-use tad\EmbeddedWP\Paths;
+use tad\EmbeddedWP\Filesystem\Paths;
 use tad\FunctionMocker\FunctionMocker as Test;
 
 class EmbeddedWPTest extends \Codeception\TestCase\Test

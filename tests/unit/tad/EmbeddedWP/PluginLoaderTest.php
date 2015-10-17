@@ -2,6 +2,7 @@
 namespace tad\EmbeddedWP;
 
 use org\bovigo\vfs\vfsStream;
+use tad\EmbeddedWP\Filesystem\Paths;
 use tad\FunctionMocker\FunctionMocker as Test;
 
 class PluginLoaderTest extends \Codeception\TestCase\Test
@@ -10,14 +11,6 @@ class PluginLoaderTest extends \Codeception\TestCase\Test
      * @var \UnitTester
      */
     protected $tester;
-
-    protected function _before()
-    {
-    }
-
-    protected function _after()
-    {
-    }
 
     /**
      * @test
@@ -161,5 +154,13 @@ class PluginLoaderTest extends \Codeception\TestCase\Test
         $sut->symlinkIt();
 
         $filesystem->wasNotCalled('symlink');
+    }
+
+    protected function _before()
+    {
+    }
+
+    protected function _after()
+    {
     }
 }

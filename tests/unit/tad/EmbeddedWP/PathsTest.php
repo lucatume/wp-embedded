@@ -2,7 +2,7 @@
 namespace Codeception\Module;
 
 
-use tad\EmbeddedWP\Paths;
+use tad\EmbeddedWP\Filesystem\Paths;
 
 class PathsTest extends \Codeception\TestCase\Test
 {
@@ -10,10 +10,6 @@ class PathsTest extends \Codeception\TestCase\Test
      * @var \UnitTester
      */
     protected $tester;
-
-    protected function _before()
-    {
-    }
 
     /**
      * @test
@@ -23,6 +19,11 @@ class PathsTest extends \Codeception\TestCase\Test
     {
         $sut = new Paths();
         $this->assertEquals($this->getRootFolder(), $sut->getWpRootFolder());
+    }
+
+    private function getRootFolder($frag = null)
+    {
+        return codecept_root_dir('embedded-wordpress' . $frag);
     }
 
     /**
@@ -65,9 +66,8 @@ class PathsTest extends \Codeception\TestCase\Test
         $this->assertEquals($this->getRootFolder('/wp-content/plugins'), $sut->getWpPluginsFolder());
     }
 
-    private function getRootFolder($frag = null)
+    protected function _before()
     {
-        return codecept_root_dir('embedded-wordpress' . $frag);
     }
 
 }

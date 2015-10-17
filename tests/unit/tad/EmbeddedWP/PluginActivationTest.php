@@ -2,6 +2,7 @@
 namespace tad\EmbeddedWP;
 
 use org\bovigo\vfs\vfsStream;
+use tad\EmbeddedWP\Filesystem\Paths;
 use tad\FunctionMocker\FunctionMocker as Test;
 
 class PluginActivationTest extends \Codeception\TestCase\Test
@@ -10,14 +11,6 @@ class PluginActivationTest extends \Codeception\TestCase\Test
      * @var \UnitTester
      */
     protected $tester;
-
-    protected function _before()
-    {
-    }
-
-    protected function _after()
-    {
-    }
 
     /**
      * @test
@@ -32,6 +25,15 @@ class PluginActivationTest extends \Codeception\TestCase\Test
         $this->setExpectedException('Codeception\Exception\ModuleConfigException');
 
         new PluginActivation($plugin, $config, $pathFinder);
+    }
+
+    /**
+     * @return Paths
+     */
+    protected function makeFinder()
+    {
+        $pathFinder = new Paths(__DIR__, __DIR__);
+        return $pathFinder;
     }
 
     /**
@@ -115,19 +117,17 @@ class PluginActivationTest extends \Codeception\TestCase\Test
         $plugin = 'some/path/some/file.php';
         $config = ['mainFile' => 'main.php'];
         $pathFinder = $this->makeFinder();
-        $do_action = Test::replace('do_action');
 
         $this->setExpectedException('Codeception\Exception\ModuleConfigException');
 
-        $sut = new PluginActivation($plugin, $config, $pathFinder);
+        new PluginActivation($plugin, $config, $pathFinder);
     }
 
-    /**
-     * @return Paths
-     */
-    protected function makeFinder()
+    protected function _before()
     {
-        $pathFinder = new Paths(__DIR__, __DIR__);
-        return $pathFinder;
+    }
+
+    protected function _after()
+    {
     }
 }
