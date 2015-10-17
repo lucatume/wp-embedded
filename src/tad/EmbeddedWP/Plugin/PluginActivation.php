@@ -4,7 +4,8 @@ namespace tad\EmbeddedWP;
 
 
 use Codeception\Exception\ModuleConfigException;
-use tad\WPBrowser\Utils\PathUtils;
+use tad\WPBrowser\Filesystem\PathFinder;
+use tad\WPBrowser\Filesystem\Utils;
 
 class PluginActivation
 {
@@ -53,8 +54,8 @@ class PluginActivation
     protected function maybeCastMainPluginFile($pluginBasename)
     {
         if ($this->mainFile) {
-            if ($pluginBasename === PathUtils::unleadslashit($this->mainFile)) {
-                $pluginBasename = basename($this->pathFinder->getRootDir()) . DIRECTORY_SEPARATOR . $pluginBasename;
+            if ($pluginBasename === Utils::unleadslashit($this->mainFile)) {
+                $pluginBasename = basename($this->pathFinder->getRootFolder()) . DIRECTORY_SEPARATOR . $pluginBasename;
                 return $pluginBasename;
             }
         }
@@ -70,7 +71,7 @@ class PluginActivation
         if (is_file($pluginBasenameCandidate)) {
             $pluginBasename = basename(dirname($pluginBasenameCandidate)) . DIRECTORY_SEPARATOR . basename($pluginBasenameCandidate);
         } else {
-            $pluginBasenameCandidate = PathUtils::unleadslashit($pluginBasenameCandidate);
+            $pluginBasenameCandidate = Utils::unleadslashit($pluginBasenameCandidate);
             $pattern = "~^[\\w\\d-_^\\s]*(\\/{1}[\\w\\d-_^\\s]*){0,1}.php$~u";
             if (!preg_match($pattern, $pluginBasenameCandidate)) {
                 throw new ModuleConfigException(__CLASS__, "Format for `activatePlugins` entries should be 'pluginFolder/pluginFile.php' or 'single-file.php' format, {$pluginBasenameCandidate} is not valid.");

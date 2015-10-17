@@ -4,11 +4,12 @@ namespace Codeception\Module;
 
 use Codeception\Exception\ModuleConfigException;
 use Codeception\Lib\ModuleContainer;
-use tad\EmbeddedWP\MainPluginLoader;
-use tad\EmbeddedWP\PathFinder;
-use tad\EmbeddedWP\Paths;
+use tad\EmbeddedWP\Filesystem\Paths;
+use tad\EmbeddedWP\Plugin\MainPluginLoader;
+use tad\EmbeddedWP\PluginActivation;
 use tad\EmbeddedWP\PluginLoader;
-use tad\WPBrowser\Utils\PathUtils;
+use tad\WPBrowser\Filesystem\PathFinder;
+use tad\WPBrowser\Filesystem\Utils;
 
 class EmbeddedWP extends WPLoader
 {
@@ -43,7 +44,7 @@ class EmbeddedWP extends WPLoader
      */
     private $pathFinder;
     /**
-     * @var \tad\WPBrowser\Filesystem
+     * @var \tad\WPBrowser\Filesystem\Filesystem
      */
     private $filesystem;
 
@@ -51,16 +52,16 @@ class EmbeddedWP extends WPLoader
      * @param ModuleContainer $moduleContainer
      * @param null $config
      * @param PathFinder|null $pathFinder
-     * @param \tad\WPBrowser\Filesystem|null $filesystem
+     * @param \tad\WPBrowser\Filesystem\Filesystem|null $filesystem
      */
     public function __construct(ModuleContainer $moduleContainer,
         $config = null,
         PathFinder $pathFinder = null,
-        \tad\WPBrowser\Filesystem $filesystem = null)
+        \tad\WPBrowser\Filesystem\Filesystem $filesystem = null)
     {
         parent::__construct($moduleContainer, $config);
         $this->pathFinder = $pathFinder ?: new Paths(codecept_root_dir());
-        $this->filesystem = $filesystem ?: new \tad\WPBrowser\Filesystem();
+        $this->filesystem = $filesystem ?: new \tad\WPBrowser\Filesystem\Filesystem();
     }
 
     /**
@@ -77,10 +78,10 @@ class EmbeddedWP extends WPLoader
         }
 
         $activatePlugins = (array)$this->config['activatePlugins'];
-        $this->config['_rootDir'] = $this->pathFinder->getRootDir();
+        $this->config['_rootDir'] = $this->pathFinder->getRootFolder();
 
         foreach ($activatePlugins as $plugin) {
-            $activationCandidate = new \tad\EmbeddedWP\PluginActivation($plugin, $this->config, $this->pathFinder);
+            $activationCandidate = new PluginActivation($plugin, $this->config, $this->pathFinder);
             $activationCandidate->activate();
         }
     }
@@ -211,6 +212,6 @@ class EmbeddedWP extends WPLoader
      */
     protected function getMainPluginBasename()
     {
-        return basename(codecept_root_dir()) . DIRECTORY_SEPARATOR . PathUtils::unleadslashit($this->config['mainFile']);
+        return basename(codecept_root_dir()) . DIRECTORY_SEPARATOR . Utils::unleadslashit($this->config['mainFile']);
     }
 }

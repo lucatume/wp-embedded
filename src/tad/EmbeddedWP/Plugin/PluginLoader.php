@@ -4,8 +4,9 @@ namespace tad\EmbeddedWP;
 
 
 use Codeception\Exception\ModuleConfigException;
-use tad\WPBrowser\Filesystem;
-use tad\WPBrowser\Utils\PathUtils;
+use tad\WPBrowser\Filesystem\Filesystem;
+use tad\WPBrowser\Filesystem\PathFinder;
+use tad\WPBrowser\Filesystem\Utils;
 
 class PluginLoader
 {
@@ -39,7 +40,7 @@ class PluginLoader
         $this->filesystem = $filesystem;
         if (!file_exists($pluginPath)) {
             // relative path to required plugin
-            $path = $this->pathFinder->getRootDir() . DIRECTORY_SEPARATOR . PathUtils::unleadslashit($pluginPath);
+            $path = $this->pathFinder->getRootFolder() . DIRECTORY_SEPARATOR . Utils::unleadslashit($pluginPath);
         } else {
             // absolute path to required plugin
             $path = $pluginPath;

@@ -1,9 +1,10 @@
 <?php
 
-namespace tad\EmbeddedWP;
+namespace tad\EmbeddedWP\Filesystem;
 
 
-use tad\WPBrowser\Utils\PathUtils;
+use tad\WPBrowser\Filesystem\PathFinder;
+use tad\WPBrowser\Filesystem\Utils;
 
 class Paths implements PathFinder
 {
@@ -14,7 +15,7 @@ class Paths implements PathFinder
         $wpRootFolder = null)
     {
         $this->rootDir = $rootDir ?: __DIR__;
-        $this->wpRootFolder = $wpRootFolder ?: PathUtils::findHereOrInParent('embedded-wordpress', $this->rootDir);
+        $this->wpRootFolder = $wpRootFolder ?: Utils::findHereOrInParent('embedded-wordpress', $this->rootDir);
     }
 
     public function getWPThemesFolder()
@@ -53,7 +54,7 @@ class Paths implements PathFinder
         return $this->getWPContentFolder() . '/plugins';
     }
 
-    public function getRootDir()
+    public function getRootFolder()
     {
         return $this->rootDir;
     }
