@@ -6,8 +6,8 @@ use Codeception\Exception\ModuleConfigException;
 use Codeception\Lib\ModuleContainer;
 use tad\EmbeddedWP\Filesystem\Paths;
 use tad\EmbeddedWP\Plugin\MainPluginLoader;
-use tad\EmbeddedWP\PluginActivation;
-use tad\EmbeddedWP\PluginLoader;
+use tad\EmbeddedWP\Plugin\PluginActivation;
+use tad\EmbeddedWP\Plugin\PluginLoader;
 use tad\WPBrowser\Filesystem\PathFinder;
 use tad\WPBrowser\Filesystem\Utils;
 

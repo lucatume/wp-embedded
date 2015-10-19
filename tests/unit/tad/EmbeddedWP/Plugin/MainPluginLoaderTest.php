@@ -1,9 +1,8 @@
 <?php
-namespace tad\EmbeddedWp;
+namespace tad\EmbeddedWp\Plugin;
 
 use org\bovigo\vfs\vfsStream;
 use tad\EmbeddedWP\Filesystem\Paths;
-use tad\EmbeddedWP\Plugin\MainPluginLoader;
 use tad\EmbeddedWp\Tests\EmbeddedWPTest;
 use tad\FunctionMocker\FunctionMocker as Test;
 
@@ -96,7 +95,7 @@ class MainPluginLoaderTest extends EmbeddedWPTest
         parent::_before();
         $projectRoot = VfsStream::url($this->rootDirName) . '/my-plugin';
         $this->mainPluginFilePath = $projectRoot . '/my-plugin.php';
-        $this->filesystem = Test::replace('tad\WPBrowser\Filesystem')->method('symlink')->method('requireOnce')->get();
+        $this->filesystem = Test::replace('tad\WPBrowser\Filesystem\Filesystem')->method('symlink')->method('requireOnce')->get();
         $this->embeddedWpPath = $projectRoot . '/vendor/lucatume/wp-embedded/src/embedded-wordpress';
         $this->pathFinder = new Paths($projectRoot, $this->embeddedWpPath);
     }

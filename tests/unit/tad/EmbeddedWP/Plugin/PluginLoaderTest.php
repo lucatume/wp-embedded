@@ -1,5 +1,5 @@
 <?php
-namespace tad\EmbeddedWP;
+namespace tad\EmbeddedWP\Plugin;
 
 use org\bovigo\vfs\vfsStream;
 use tad\EmbeddedWP\Filesystem\Paths;
@@ -20,7 +20,7 @@ class PluginLoaderTest extends \Codeception\TestCase\Test
     {
         $plugin = 23;
         $pathFinder = new Paths(__DIR__, __DIR__);
-        $filesystem = Test::replace('tad\WPBrowser\Filesystem')->method('requireOnce')->method('symlink')->get();
+        $filesystem = Test::replace('tad\WPBrowser\Filesystem\Filesystem')->method('requireOnce')->method('symlink')->get();
 
         $this->setExpectedException('Codeception\Exception\ModuleConfigException');
 
@@ -35,7 +35,7 @@ class PluginLoaderTest extends \Codeception\TestCase\Test
     {
         $plugin = 'foo/baz/bar.php';
         $pathFinder = new Paths(__DIR__, __DIR__);
-        $filesystem = Test::replace('tad\WPBrowser\Filesystem')->method('requireOnce')->method('symlink')->get();
+        $filesystem = Test::replace('tad\WPBrowser\Filesystem\Filesystem')->method('requireOnce')->method('symlink')->get();
 
         $this->setExpectedException('Codeception\Exception\ModuleConfigException');
 
@@ -55,7 +55,7 @@ class PluginLoaderTest extends \Codeception\TestCase\Test
         $plugin = vfsStream::url($id . '/Users/Me/plugin/plugin.php');
         $this->assertFileExists($plugin);
         $pathFinder = new Paths(__DIR__, __DIR__);
-        $filesystem = Test::replace('tad\WPBrowser\Filesystem')->method('requireOnce')->method('symlink')->get();
+        $filesystem = Test::replace('tad\WPBrowser\Filesystem\Filesystem')->method('requireOnce')->method('symlink')->get();
 
         $sut = new PluginLoader($plugin, $pathFinder, $filesystem);
 
@@ -77,7 +77,7 @@ class PluginLoaderTest extends \Codeception\TestCase\Test
         ]);
         $plugin = 'vendor/plugin_author/plugin/plugin.php';
         $pathFinder = new Paths(vfsStream::url($id . '/root'), __DIR__);
-        $filesystem = Test::replace('tad\WPBrowser\Filesystem')->method('requireOnce')->method('symlink')->get();
+        $filesystem = Test::replace('tad\WPBrowser\Filesystem\Filesystem')->method('requireOnce')->method('symlink')->get();
 
         $sut = new PluginLoader($plugin, $pathFinder, $filesystem);
 
@@ -98,7 +98,7 @@ class PluginLoaderTest extends \Codeception\TestCase\Test
         ]);
         $plugin = vfsStream::url($id . '/Users/Me/plugin/plugin.php');
         $pathFinder = new Paths(__DIR__, __DIR__);
-        $filesystem = Test::replace('tad\WPBrowser\Filesystem')->method('requireOnce')->method('symlink')->get();
+        $filesystem = Test::replace('tad\WPBrowser\Filesystem\Filesystem')->method('requireOnce')->method('symlink')->get();
 
         $sut = new PluginLoader($plugin, $pathFinder, $filesystem);
 
@@ -121,7 +121,7 @@ class PluginLoaderTest extends \Codeception\TestCase\Test
         ]);
         $plugin = 'vendor/plugin_author/plugin/plugin.php';
         $pathFinder = new Paths(vfsStream::url($id . '/root'), __DIR__);
-        $filesystem = Test::replace('tad\WPBrowser\Filesystem')->method('requireOnce')->method('symlink')->get();
+        $filesystem = Test::replace('tad\WPBrowser\Filesystem\Filesystem')->method('requireOnce')->method('symlink')->get();
 
         $sut = new PluginLoader($plugin, $pathFinder, $filesystem);
 
@@ -147,7 +147,7 @@ class PluginLoaderTest extends \Codeception\TestCase\Test
         $plugin = vfsStream::url($id . '/root/vendor/plugin_author/plugin/plugin.php');
         $this->assertFileExists($plugin);
         $pathFinder = new Paths(vfsStream::url($id . '/root'), vfsStream::url($id . '/embedded-wp'));
-        $filesystem = Test::replace('tad\WPBrowser\Filesystem')->method('requireOnce')->method('symlink')->get();
+        $filesystem = Test::replace('tad\WPBrowser\Filesystem\Filesystem')->method('requireOnce')->method('symlink')->get();
 
         $sut = new PluginLoader($plugin, $pathFinder, $filesystem);
 

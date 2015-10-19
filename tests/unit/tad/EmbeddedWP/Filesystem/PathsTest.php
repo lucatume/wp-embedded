@@ -1,8 +1,6 @@
 <?php
-namespace Codeception\Module;
+namespace tad\EmbeddedWP\Filesystem;
 
-
-use tad\EmbeddedWP\Filesystem\Paths;
 
 class PathsTest extends \Codeception\TestCase\Test
 {

@@ -7,6 +7,10 @@
     {
       "type": "composer",
       "url": "http://wpackagist.org"
+    },
+    {
+      "type": "git",
+      "url": "/Users/Luca/Desktop/wp-browser"
     }
   ],
   "authors": [
@@ -19,10 +23,9 @@
     "lucatume/wp-browser": "dev-master"
   },
   "autoload": {
-    "psr-0": {
-      "Codeception\\Module\\": "src/",
-      "tad\\EmbeddedWP\\": "src/",
-      "tad\\WPBrowser\\": "src/"
+    "psr-4": {
+      "Codeception\\": "src\\Codeception",
+      "tad\\": "src\\tad"
     }
   },
   "require-dev": {

@@ -1,6 +1,6 @@
 <?php
 
-namespace tad\EmbeddedWP;
+namespace tad\EmbeddedWP\Plugin;
 
 
 use Codeception\Exception\ModuleConfigException;

@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "e73df341822a69c9d3cbc84ece986ad5",
-    "content-hash": "086ba0e917182c5aadce0b05aa3f85a0",
+    "hash": "bbcfcfa91f34da8934aab89c5fc6a36b",
+    "content-hash": "885a0314573cb99524dc5fe37fa05728",
     "packages": [
         {
             "name": "bacon/bacon-string-utils",
@@ -66,12 +66,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/Codeception.git",
-                "reference": "a14939089e10c60f072bdd617c8fa9969b29aebf"
+                "reference": "1eebcb903a68e2bb11717ac6bd8381b41b130b72"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/Codeception/zipball/a14939089e10c60f072bdd617c8fa9969b29aebf",
-                "reference": "a14939089e10c60f072bdd617c8fa9969b29aebf",
+                "url": "https://api.github.com/repos/Codeception/Codeception/zipball/1eebcb903a68e2bb11717ac6bd8381b41b130b72",
+                "reference": "1eebcb903a68e2bb11717ac6bd8381b41b130b72",
                 "shasum": ""
             },
             "require": {
@@ -138,7 +138,7 @@
                 "functional testing",
                 "unit testing"
             ],
-            "time": "2015-10-14 15:35:14"
+            "time": "2015-10-18 08:46:50"
         },
         {
             "name": "doctrine/instantiator",
@@ -303,12 +303,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/promises.git",
-                "reference": "97fe7210def29451ec74923b27e552238defd75a"
+                "reference": "b1e1c0d55f8083c71eda2c28c12a228d708294ea"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/promises/zipball/97fe7210def29451ec74923b27e552238defd75a",
-                "reference": "97fe7210def29451ec74923b27e552238defd75a",
+                "url": "https://api.github.com/repos/guzzle/promises/zipball/b1e1c0d55f8083c71eda2c28c12a228d708294ea",
+                "reference": "b1e1c0d55f8083c71eda2c28c12a228d708294ea",
                 "shasum": ""
             },
             "require": {
@@ -346,7 +346,7 @@
             "keywords": [
                 "promise"
             ],
-            "time": "2015-08-15 19:37:21"
+            "time": "2015-10-15 22:28:00"
         },
         {
             "name": "guzzlehttp/psr7",
@@ -411,14 +411,8 @@
             "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/lucatume/wp-browser.git",
-                "reference": "c7769bce8f071ccc30d4c7beb87367ad498ba9ed"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/lucatume/wp-browser/zipball/c7769bce8f071ccc30d4c7beb87367ad498ba9ed",
-                "reference": "c7769bce8f071ccc30d4c7beb87367ad498ba9ed",
-                "shasum": ""
+                "url": "/Users/Luca/Desktop/wp-browser",
+                "reference": "9d85d4e972c9640c30478fe58aef373f90c43b6a"
             },
             "require": {
                 "bacon/bacon-string-utils": "~1.0",
@@ -435,14 +429,10 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Codeception\\Module\\": "src/Module",
-                    "Codeception\\Lib\\Driver\\": "src/Lib/Driver",
-                    "Codeception\\Command\\": "src/Command",
-                    "Codeception\\Lib\\Generator\\": "src/Generator",
-                    "tad\\WPBrowser\\": "src/"
+                    "Codeception\\": "src\\Codeception",
+                    "tad\\": "src\\tad"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -460,7 +450,7 @@
                 "codeception",
                 "wordpress"
             ],
-            "time": "2015-10-14 15:55:55"
+            "time": "2015-10-19 08:39:38"
         },
         {
             "name": "phpdocumentor/reflection-docblock",
@@ -817,12 +807,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "be067d6105286b74272facefc2697038f8807b77"
+                "reference": "b4900675926860bef091644849305399b986efa2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/be067d6105286b74272facefc2697038f8807b77",
-                "reference": "be067d6105286b74272facefc2697038f8807b77",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/b4900675926860bef091644849305399b986efa2",
+                "reference": "b4900675926860bef091644849305399b986efa2",
                 "shasum": ""
             },
             "require": {
@@ -881,7 +871,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2015-10-14 13:49:40"
+            "time": "2015-10-17 15:03:30"
         },
         {
             "name": "phpunit/phpunit-mock-objects",
@@ -1635,12 +1625,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/filesystem.git",
-                "reference": "fc3fe52fef85e1f3e7775ffad92539e16c20e0af"
+                "reference": "ea5234f76d21b9960fe838114a39d56aa05516bb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/filesystem/zipball/fc3fe52fef85e1f3e7775ffad92539e16c20e0af",
-                "reference": "fc3fe52fef85e1f3e7775ffad92539e16c20e0af",
+                "url": "https://api.github.com/repos/symfony/filesystem/zipball/ea5234f76d21b9960fe838114a39d56aa05516bb",
+                "reference": "ea5234f76d21b9960fe838114a39d56aa05516bb",
                 "shasum": ""
             },
             "require": {
@@ -1673,7 +1663,7 @@
             ],
             "description": "Symfony Filesystem Component",
             "homepage": "https://symfony.com",
-            "time": "2015-10-11 08:29:26"
+            "time": "2015-10-18 20:23:24"
         },
         {
             "name": "symfony/finder",

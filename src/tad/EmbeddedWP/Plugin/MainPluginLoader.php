@@ -3,7 +3,6 @@
 namespace tad\EmbeddedWP\Plugin;
 
 use Codeception\Exception\ModuleConfigException;
-use tad\EmbeddedWP\PluginLoader;
 use tad\WPBrowser\Filesystem\Filesystem;
 use tad\WPBrowser\Filesystem\PathFinder;
 use tad\WPBrowser\Filesystem\Utils;
